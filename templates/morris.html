@@ -15,7 +15,7 @@ header</head>
 $(function(){
   $.getJSON("./jsondata", function(data, status){
 
-new Morris.Line({
+var chart_rec = new Morris.Line({
   // ID of the element in which to draw the chart.
   element: 'myfirstchart',
   // Chart data records -- each entry in this array corresponds to a point on
@@ -29,12 +29,12 @@ new Morris.Line({
   //  { year: '2012', value: 20 }
   //],
   // The name of the data record attribute that contains x-values.
-  xkey: 'year',
+  xkey: 'day',
   // A list of names of data record attributes that contain y-values.
-  ykeys: ['value'],
+  ykeys: ['record_count'],
   // Labels for the ykeys -- will be displayed when you hover over the
   // chart.
-  labels: ['Value']
+  labels: ['record_count']
 });
 //$.getJSON('/jsondata', function(data, status) {});
 console.log(data)

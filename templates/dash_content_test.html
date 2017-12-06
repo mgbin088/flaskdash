@@ -39,6 +39,8 @@
       <!-- fix for small devices only -->
       <div class="clearfix visible-sm-block"></div>
 
+
+      
       <div class="col-md-3 col-sm-6 col-xs-12">
         <div class="info-box">
           <span class="info-box-icon bg-green"><i class="ion ion-ios-cart-outline"></i></span>
@@ -158,13 +160,15 @@
                 </div>
                 <!-- /.row -->
               </div>
-
+            </div>
+          </div>
+        </div>
 
         <div class="row">
           <div class="col-md-12">
             <div class="box">
               <div class="box-header with-border">
-                <h3 class="box-title">Monthly Recap Report</h3>
+                <h3 class="box-title">Monthly Summary Data</h3>
                         <div>
                           <table id="dtexample" class="hover stripe">
 
@@ -175,9 +179,60 @@
                 </div>
               </div>
     <!-- END PASTE  -->
+    <div class="row">
+      <div class="col-md-6">
+        <div class="box">
+          <div class="box-header with-border">
+            <h3 class="box-title">Monthly Recap Report</h3>
+
+            <div class="box-tools pull-right">
+              <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+              </button>
+              <div class="btn-group">
+                <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
+                  <i class="fa fa-wrench"></i></button>
+                <ul class="dropdown-menu" role="menu">
+                  <li><a href="#">Action</a></li>
+                  <li><a href="#">Another action</a></li>
+                  <li><a href="#">Something else here</a></li>
+                  <li class="divider"></li>
+                  <li><a href="#">Separated link</a></li>
+                </ul>
+              </div>
+              <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+            </div>
+          </div>
+          <!-- /.box-header -->
+          <div class="box-body">
+            <div class="row">
+              <div class="col-md-12">
+                <p class="text-center">
+                  Usage in KWh
+                </p>
+
+                <div class="chart">
+                  <!-- Sales Chart Canvas -->
+                  <div id="morrischart" style="width: 100%; height: 100%"></div>
+                </div>
+                <!-- /.chart-responsive -->
+              </div>
+           
+                </div>
+                <!-- /.progress-group -->
+              </div>
+              <!-- /.col -->
+            </div>
+            <!-- /.row -->
+          </div>
+        </div>
+      </div>
+    </div>                  
+        <!-- END PASTE  -->
     <script src="//cdnjs.cloudflare.com/ajax/libs/dygraph/2.0.0/dygraph.min.js"></script>
     <script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
     <script src="//cdn.datatables.net/fixedcolumns/3.2.3/js/dataTables.fixedColumns.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
     <script type="text/javascript">
       $(function() {
       g = new Dygraph(
@@ -230,5 +285,40 @@
         } );
             //"data": data,
     </script>
-      
+<script>
+  var chart_rec = new Morris.Bar({
+    // ID of the element in which to draw the chart.
+    element: 'morrischart',
+    // Chart data records -- each entry in this array corresponds to a point on
+    // the chart.
+    // The name of the data record attribute that contains x-values.
+    xkey: 'usage_month',
+    // A list of names of data record attributes that contain y-values.
+    ykeys: ['kwh','revenue'],
+    // Labels for the ykeys -- will be displayed when you hover over the
+    // chart.
+    labels: ['kwh','revenue'],
+    stacked:true,
+    barColors:['#2874a6','#17a589','#707b7c','#aab7b8','#a6acaf','#138d75'],
+    barOpacity: 0.75,
+    resize: true,
+    redraw: true,
+    hideHover: 'auto'
+  
+  });
+  $.getJSON('/jsondata', function(data, status) {});
+  $(function(){
+    $.getJSON("./jsondata", function(data, status){
+  console.log(data)
+  chart_rec.setData(data)
+      });
+    });
+  
+    function loadDoc() {
+      chart_rec.options.ykeys = ['revenue','kwh']
+      chart_rec.options.labels = ['revenue','kwh']
+      //chart_rec.setData(chart_rec.options.labels)
+      chart_rec.setData(chart_rec.options.data)
+    }
+  </script>      
 {% endblock %}

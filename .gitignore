@@ -1,0 +1,7 @@
+.vscode/
+static/bower_components/
+static/dist/
+static/iCheck/
+*.pyc
+*.csv
+*.json

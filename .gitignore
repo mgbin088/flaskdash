@@ -5,3 +5,4 @@ static/iCheck/
 *.pyc
 *.csv
 *.json
+user.db

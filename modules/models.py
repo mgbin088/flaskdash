@@ -1,6 +1,6 @@
 from modules.database import Base
 from flask_security import UserMixin, RoleMixin
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, types
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Boolean, DateTime, Column, Integer, \
                        String, ForeignKey
@@ -32,3 +32,25 @@ class User(Base, UserMixin):
     confirmed_at = Column(DateTime())
     roles = relationship('Role', secondary='roles_users',
                          backref=backref('users', lazy='dynamic'))
+
+class Budget_line(Base):
+    __tablename__ = 'budget_line'
+    id = Column(Integer(), primary_key=True)
+    budget_line = Column('budget_line', String(255))
+    department_id = Column('department_id',Integer(),ForeignKey('budget_department.id'))
+
+class Budget_department(Base):
+    __tablename__ = 'budget_department'
+    id = Column(Integer(), primary_key=True)
+    department = Column('budget_line', String(255))
+   
+class Budget(Base):
+    __tablename__ = 'budget'
+    id = Column(Integer())
+    budget_year = Column(Integer(), primary_key=True)
+    budget_version = Column(Integer(), primary_key=True)
+    period = Column(Integer(), primary_key=True)
+    amount = Column('amount', types.Numeric(12, 2))
+    volume = Column('volume', types.Numeric(12, 2))
+    budget_line_id = Column('budget_line_id', Integer(), ForeignKey('budget_line.id'))
+    department_id = Column('department_id', Integer(), ForeignKey('budget_department.id'))

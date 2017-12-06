@@ -7,7 +7,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Maher Accountancy | Client Portal</title>
+  <title>AdminLTE 2 | Starter</title>
   <!-- Tell the browser to be responsive to screen width -->
   <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
   <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/bootstrap/dist/css/bootstrap.min.css') }}">  
@@ -15,40 +15,13 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/font-awesome/css/font-awesome.min.css') }}">
   <!-- Ionicons -->
   <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/Ionicons/css/ionicons.min.css') }}">
-  <!-- jvectormap -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/jvectormap/jquery-jvectormap.css') }}">
   <!-- Theme style -->
   <link rel="stylesheet" href="{{ url_for('static', filename='dist/css/AdminLTE.min.css') }}">
-<!-- Dygraph style -->
-  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/dygraph/2.0.0/dygraph.min.css">
-
-  <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
-  
-  <style type="text/css">
-    .dygraph-legend {
-      background-color: #3c8dbc7e !important;
-      padding: 4px;
-      border: 1px solid #000;
-      border-radius: 10px;
-      box-shadow: 4px 4px 4px #888;
-      pointer-events: none;
-      width: 100px;
-      z-index: 100;
-    }
-    .dataTable {
-      background-color: #fff;
-      }
-    pre {
-      margin-top: 30px;
-    }
-  </style>
   <!-- AdminLTE Skins. We have chosen the skin-blue for this starter
         page. However, you can choose any other skin. Make sure you
         apply the skin class to the body tag so the changes take effect. -->
   <link rel="stylesheet" href="{{ url_for('static', filename='dist/css/skins/skin-blue.min.css') }}">
-<!-- jQuery 3 -->
-<script src="{{ url_for('static', filename='bower_components/jquery/dist/jquery.min.js') }}"></script>
+
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
   <!--[if lt IE 9]>
@@ -91,8 +64,7 @@ desired effect
       <!-- mini logo for sidebar mini 50x50 pixels -->
       <span class="logo-mini"><b>A</b>LT</span>
       <!-- logo for regular state and mobile devices -->
-      <span class="logo-lg"><img src="{{ url_for('static', filename='img/logo_color_only.png') }}" alt="Maher Accountancy" height="45"></span>
-      <!--b>Maher</b>Accountancy-->
+      <span class="logo-lg"><b>Admin</b>LTE</span>
     </a>
 
     <!-- Header Navbar -->
@@ -120,8 +92,7 @@ desired effect
                     <a href="#">
                       <div class="pull-left">
                         <!-- User Image -->
-                        
-                        <img src="{{ url_for('static', filename='dist/img/user2-160x160.jpg') }}" class="img-circle" alt="User Image">
+                        <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
                       </div>
                       <!-- Message title and timestamp -->
                       <h4>
@@ -205,17 +176,15 @@ desired effect
           <li class="dropdown user user-menu">
             <!-- Menu Toggle Button -->
             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-              <!-- The user image in the navbar
-              <img src="{{ url_for('static', filename='dist/img/user2-160x160.jpg') }}" class="user-image" alt="User Image">
+              <!-- The user image in the navbar-->
+              <img src="dist/img/user2-160x160.jpg" class="user-image" alt="User Image">
               <!-- hidden-xs hides the username on small devices so only the image appears. -->
-              <span class="hidden-xs">{{ current_user.email }}</span>
+              <span class="hidden-xs">Alexander Pierce</span>
             </a>
             <ul class="dropdown-menu">
               <!-- The user image in the menu -->
-   <!--
               <li class="user-header">
-                
-                <img src="{{ url_for('static', filename='dist/img/user2-160x160.jpg') }}" class="img-circle" alt="User Image">
+                <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
 
                 <p>
                   Alexander Pierce - Web Developer
@@ -223,7 +192,6 @@ desired effect
                 </p>
               </li>
               <!-- Menu Body -->
-  <!--
               <li class="user-body">
                 <div class="row">
                   <div class="col-xs-4 text-center">
@@ -237,17 +205,14 @@ desired effect
                   </div>
                 </div>
                 <!-- /.row -->
-  <!--
               </li>
-
               <!-- Menu Footer-->
               <li class="user-footer">
-                <!--div class="pull-center">
+                <div class="pull-left">
                   <a href="#" class="btn btn-default btn-flat">Profile</a>
-                </div -->
+                </div>
                 <div class="pull-right">
-                  <a href="/logout">Account</a>
-                  <p><a href="/logout">Sign out</a></p>
+                  <a href="#" class="btn btn-default btn-flat">Sign out</a>
                 </div>
               </li>
             </ul>
@@ -272,18 +237,30 @@ desired effect
           <img src="dist/img/user2-160x160.jpg" class="img-circle" alt="User Image">
         </div>
         <div class="pull-left info">
-          <p>Client Name</p>
+          <p>Alexander Pierce</p>
           <!-- Status -->
           <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
         </div>
       </div>
 
+      <!-- search form (Optional) -->
+      <form action="#" method="get" class="sidebar-form">
+        <div class="input-group">
+          <input type="text" name="q" class="form-control" placeholder="Search...">
+          <span class="input-group-btn">
+              <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
+              </button>
+            </span>
+        </div>
+      </form>
+      <!-- /.search form -->
+
       <!-- Sidebar Menu -->
       <ul class="sidebar-menu" data-widget="tree">
         <li class="header">HEADER</li>
         <!-- Optionally, you can add icons to the links -->
-        <li class="active"><a href="#"><i class="fa fa-link"></i> <span>Home</span></a></li>
-        <li><a href="#"><i class="fa fa-link"></i> <span>Customers</span></a></li>
+        <li class="active"><a href="#"><i class="fa fa-link"></i> <span>Link</span></a></li>
+        <li><a href="#"><i class="fa fa-link"></i> <span>Another Link</span></a></li>
         <li class="treeview">
           <a href="#"><i class="fa fa-link"></i> <span>Budgets</span>
             <span class="pull-right-container">
@@ -308,7 +285,7 @@ desired effect
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-        CCA Summary
+        Page Header
         <small>Optional description</small>
       </h1>
       <ol class="breadcrumb">
@@ -323,7 +300,7 @@ desired effect
       <!--------------------------
         | Your Page Content Here |
         -------------------------->
-        {% block content %}{% endblock %}
+
     </section>
     <!-- /.content -->
   </div>
@@ -420,17 +397,13 @@ desired effect
 
 <!-- REQUIRED JS SCRIPTS -->
 
-
+<!-- jQuery 3 -->
+<script src="{{ url_for('static', filename='bower_components/jquery/dist/jquery.min.js') }}"></script>
 <!-- Bootstrap 3.3.7 -->
 <script src="{{ url_for('static', filename='bower_components/bootstrap/dist/js/bootstrap.min.js') }}"></script>
 <!-- AdminLTE App -->
 <script src="{{ url_for('static', filename='dist/js/adminlte.min.js') }}"></script>
-<!-- ChartJS -->
-<script src="{{ url_for('static', filename='bower_components/Chart.js/Chart.js') }}"></script>
-<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-<!-- script src="{{ url_for('static', filename='dist/js/pages/dashboard2.js') }}"></script -->
-<!-- AdminLTE for demo purposes -->
-<script src="{{ url_for('static', filename='dist/js/demo.js') }}"></script>
+
 <!-- Optionally, you can add Slimscroll and FastClick plugins.
      Both of these plugins are recommended to enhance the
      user experience. -->

@@ -5,8 +5,5 @@ static/iCheck/
 *.pyc
 *.csv
 *.json
-<<<<<<< HEAD
 secret.py
-=======
->>>>>>> c65fafa14cadb7e9832be98ab62974ba2bb46881
 user.db

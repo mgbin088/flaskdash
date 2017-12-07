@@ -256,7 +256,7 @@
     <script>
       $(document).ready(function() {
        // var data = {{dt_data|tojson|safe}}
-        $('#dtexample').DataTable( {
+        $('#dtexample').DataTable( 
             //"ajax": '/sample_json'
             "data": {{ dt_data|tojson|safe }},
             "columns": {{ dt_cols|tojson|safe }},

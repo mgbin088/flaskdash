@@ -1,50 +1,34 @@
 from flask import Flask, render_template, jsonify, send_file, url_for, redirect
 from modules import datasources
 from flask_sqlalchemy import SQLAlchemy
-<<<<<<< HEAD
 from flask_security import Security, SQLAlchemySessionUserDatastore, UserMixin, RoleMixin, login_required, utils, core
-
 from modules.database import *
 from modules.models import *
-=======
-from flask_security import Security, SQLAlchemySessionUserDatastore, \
-    UserMixin, RoleMixin, login_required, utils
-
-from modules.database import db_session, init_db
-from modules.models import User, Role
->>>>>>> master
 import pandas as pd
-
-# At top of file
-#from flask_mail import Mail
+from flask_mail import Mail
 
 # Create app
 app = Flask(__name__)
 app.config['DEBUG'] = True
 app.config['SECRET_KEY'] = 'super-secret'
-#app.config['SECURITY_CONFIRMABLE'] = True
+app.config['SECURITY_CONFIRMABLE'] = True
 app.config['SECURITY_REGISTERABLE'] = True
 app.config['SECURITY_RECOVERABLE'] = True
 app.config['SECURITY_CHANGEABLE'] = True
 app.config['SECURITY_PASSWORD_SALT'] = 'salty'
-app.config['SECURITY_SEND_REGISTER_EMAIL'] = False
+app.config['SECURITY_SEND_REGISTER_EMAIL'] = True
 
 app.config['SECURITY_POST_LOGIN_VIEW'] = '/dash'
 app.config['SECURITY_POST_REGISTER_VIEW'] = '/dash'
-<<<<<<< HEAD
-app.config['SECURITY_CONFIRMABLE'] = True
-=======
->>>>>>> master
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///user.db'
 
 # After 'Create app'
-#app.config['MAIL_SERVER'] = 'server2'
-#app.config['MAIL_USERNAME'] = 'MAHER\ben'
-#app.config['MAIL_PASSWORD'] = ''
-#mail = Mail(app)
+app.config['MAIL_SERVER'] = 'mail.smtp2go.com'
+app.config['SECURITY_EMAIL_SENDER'] = 'portal@mahercpa.com'
+app.config['MAIL_PORT'] = '2525'
+mail = Mail(app)
 
 # Setup Flask-Security
-<<<<<<< HEAD
 from flask_security.forms import RegisterForm, StringField, Required
 
 #class ExtendedRegisterForm(RegisterForm):
@@ -71,17 +55,7 @@ def create_user():
  #   user_datastore.create_user(email='ben@benjaminmaher.com', password='password')
  #   user_datastore.create_user(email='bmaher@mahercpa.com', password='password')
  #   db_session.commit()
-=======
-user_datastore = SQLAlchemySessionUserDatastore(db_session, User, Role)
-security = Security(app, user_datastore)
 
-# Create a user to test with
-@app.before_first_request
-def create_user():
-    init_db()
-#    user_datastore.create_user(email='ben@benjaminmaher.com', password='password')
-#    db_session.commit()
->>>>>>> master
 
 # Views
 @app.route('/')
@@ -117,20 +91,15 @@ def dash():
     file = open('data/usage_comparison.csv','r')
     usage_comparison = file.read()
     dt, col = datasources.query_usage_table()
-<<<<<<< HEAD
     role_list = [i.name for i in core.current_user.roles]        
     role_list = ','.join(role_list)
     return render_template('dash_content_test.html', usage_comparison=usage_comparison, dt_data = (dt), dt_cols = (col), role_names = role_list)
-=======
-    return render_template('dash_content_test.html', usage_comparison=usage_comparison, dt_data = (dt), dt_cols = (col))
->>>>>>> master
 
 
 @app.route("/morris")
 def morris():
     return render_template('morris.html')
 
-<<<<<<< HEAD
 from flask_security.signals import user_registered
 
 @user_registered.connect_via(app)
@@ -144,8 +113,3 @@ user_registered.connect(user_registered_sighandler)
 
 if __name__ == '__main__':
     app.run()
-=======
-
-if __name__ == '__main__':
-    app.run()
->>>>>>> master

@@ -5,6 +5,10 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Boolean, DateTime, Column, Integer, \
                        String, ForeignKey
 
+######################################################################
+##                    USER AND CLIENT
+######################################################################
+
 class RolesUsers(Base):
     __tablename__ = 'roles_users'
     id = Column(Integer(), primary_key=True)
@@ -21,7 +25,8 @@ class User(Base, UserMixin):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
     email = Column(String(255), unique=True)
-    username = Column(String(255))
+    firstname = Column(String(255))
+    lastname = Column(String(255))
     password = Column(String(255))
     last_login_at = Column(DateTime())
     current_login_at = Column(DateTime())
@@ -30,19 +35,50 @@ class User(Base, UserMixin):
     login_count = Column(Integer)
     active = Column(Boolean())
     confirmed_at = Column(DateTime())
-    roles = relationship('Role', secondary='roles_users',
-                         backref=backref('users', lazy='dynamic'))
+    roles = relationship('Role', secondary='roles_users', backref=backref('users', lazy='dynamic'))
+    client = relationship("Client", secondary='clients_users', back_populates="users")
+    department
+    
+    
+class ClientsUsers(Base):
+    __tablename__ = 'clients_users'
+    id = Column(Integer(), primary_key=True)
+    user_id = Column('user_id', Integer(), ForeignKey('user.id'))
+    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
 
-class Budget_line(Base):
+class Client(Base):
+    __tablename__ = 'client'
+    id = Column(Integer(), primary_key=True)
+    name = Column(String(100), unique=True)
+    domain = Column(String(100), unique=True)
+    abbreviation = Column(String(10), unique=True)
+    users = relationship("User", back_populates="client")
+
+######################################################################
+##                    BUDGET TRACKER MODELS
+######################################################################
+
+class BudgetProject(Base):
+    __tablename__ = 'budget_project'
+    id = Column(Integer(), primary_key=True)
+    project = Column('budget_project', String(255))
+    parent_id = Column('parent_id',Integer(),ForeignKey('budget_line.id'))
+    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
+    parent = relationship("BudgetLine", back_populates="budget_project")
+
+class BudgetLine(Base):
     __tablename__ = 'budget_line'
     id = Column(Integer(), primary_key=True)
-    budget_line = Column('budget_line', String(255))
-    department_id = Column('department_id',Integer(),ForeignKey('budget_department.id'))
+    line = Column('budget_line', String(255))
+    parent_id = Column('department_id',Integer(),ForeignKey('budget_department.id'))
+    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
+    parent = relationship("BudgetDepartment", back_populates="budget_line")
 
-class Budget_department(Base):
+class BudgetDepartment(Base):
     __tablename__ = 'budget_department'
     id = Column(Integer(), primary_key=True)
     department = Column('budget_line', String(255))
+    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
    
 class Budget(Base):
     __tablename__ = 'budget'
@@ -54,3 +90,5 @@ class Budget(Base):
     volume = Column('volume', types.Numeric(12, 2))
     budget_line_id = Column('budget_line_id', Integer(), ForeignKey('budget_line.id'))
     department_id = Column('department_id', Integer(), ForeignKey('budget_department.id'))
+    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
+

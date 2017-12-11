@@ -5,13 +5,11 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy import Boolean, DateTime, Column, Integer, \
                        String, ForeignKey
 
-<<<<<<< HEAD
 ######################################################################
 ##                    USER AND CLIENT
 ######################################################################
 
-=======
->>>>>>> master
+
 class RolesUsers(Base):
     __tablename__ = 'roles_users'
     id = Column(Integer(), primary_key=True)
@@ -28,12 +26,8 @@ class User(Base, UserMixin):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True)
     email = Column(String(255), unique=True)
-<<<<<<< HEAD
-    firstname = Column(String(255))
-    lastname = Column(String(255))
-=======
-    username = Column(String(255))
->>>>>>> master
+#    firstname = Column(String(255))
+#    lastname = Column(String(255))
     password = Column(String(255))
     last_login_at = Column(DateTime())
     current_login_at = Column(DateTime())
@@ -42,10 +36,9 @@ class User(Base, UserMixin):
     login_count = Column(Integer)
     active = Column(Boolean())
     confirmed_at = Column(DateTime())
-<<<<<<< HEAD
     roles = relationship('Role', secondary='roles_users', backref=backref('users', lazy='dynamic'))
     client = relationship("Client", secondary='clients_users', back_populates="users")
-    department
+
     
     
 class ClientsUsers(Base):
@@ -60,61 +53,64 @@ class Client(Base):
     name = Column(String(100), unique=True)
     domain = Column(String(100), unique=True)
     abbreviation = Column(String(10), unique=True)
-    users = relationship("User", back_populates="client")
+    users = relationship("User", secondary='clients_users', back_populates="client")
 
 ######################################################################
 ##                    BUDGET TRACKER MODELS
 ######################################################################
 
-class BudgetProject(Base):
-    __tablename__ = 'budget_project'
-    id = Column(Integer(), primary_key=True)
-    project = Column('budget_project', String(255))
-    parent_id = Column('parent_id',Integer(),ForeignKey('budget_line.id'))
-    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
-    parent = relationship("BudgetLine", back_populates="budget_project")
+#class BudgetProject(Base):
+#    __tablename__ = 'budget_project'
+#    id = Column(Integer(), primary_key=True)
+#    project = Column('budget_project', String(255))
+#    parent_id = Column('parent_id',Integer(),ForeignKey('budget_line.id'))
+#    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
+#    parent = relationship("BudgetLine", back_populates="budget_project")
 
-class BudgetLine(Base):
-    __tablename__ = 'budget_line'
-    id = Column(Integer(), primary_key=True)
-    line = Column('budget_line', String(255))
-    parent_id = Column('department_id',Integer(),ForeignKey('budget_department.id'))
-    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
-    parent = relationship("BudgetDepartment", back_populates="budget_line")
+#class BudgetLine(Base):
+#    __tablename__ = 'budget_line'
+#    id = Column(Integer(), primary_key=True)
+#    line = Column('budget_line', String(255))
+#    parent_id = Column('department_id',Integer(),ForeignKey('budget_department.id'))
+#    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
+#    parent = relationship("BudgetDepartment", back_populates="budget_line")
 
-class BudgetDepartment(Base):
-    __tablename__ = 'budget_department'
-    id = Column(Integer(), primary_key=True)
-    department = Column('budget_line', String(255))
-    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
-=======
-    roles = relationship('Role', secondary='roles_users',
-                         backref=backref('users', lazy='dynamic'))
+#class BudgetDepartment(Base):
+#    __tablename__ = 'budget_department'
+#    id = Column(Integer(), primary_key=True)
+#    department = Column('budget_line', String(255))
+#    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
 
-class Budget_line(Base):
-    __tablename__ = 'budget_line'
-    id = Column(Integer(), primary_key=True)
-    budget_line = Column('budget_line', String(255))
-    department_id = Column('department_id',Integer(),ForeignKey('budget_department.id'))
-
-class Budget_department(Base):
-    __tablename__ = 'budget_department'
-    id = Column(Integer(), primary_key=True)
-    department = Column('budget_line', String(255))
->>>>>>> master
    
-class Budget(Base):
-    __tablename__ = 'budget'
-    id = Column(Integer())
-    budget_year = Column(Integer(), primary_key=True)
-    budget_version = Column(Integer(), primary_key=True)
-    period = Column(Integer(), primary_key=True)
-    amount = Column('amount', types.Numeric(12, 2))
-    volume = Column('volume', types.Numeric(12, 2))
-    budget_line_id = Column('budget_line_id', Integer(), ForeignKey('budget_line.id'))
-    department_id = Column('department_id', Integer(), ForeignKey('budget_department.id'))
-<<<<<<< HEAD
-    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
+#class Budget(Base):
+#    __tablename__ = 'budget'
+#    id = Column(Integer())
+#    budget_year = Column(Integer(), primary_key=True)
+#    budget_version = Column(Integer(), primary_key=True)
+#    period = Column(Integer(), primary_key=True)
+#    amount = Column('amount', types.Numeric(12, 2))
+#    volume = Column('volume', types.Numeric(12, 2))
+#    budget_line_id = Column('budget_line_id', Integer(), ForeignKey('budget_line.id'))
+#    department_id = Column('department_id', Integer(), ForeignKey('budget_department.id'))
+#    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
 
-=======
->>>>>>> master
+############################
+#### Alternate Attempt for Budget Heirarchy
+###########################
+
+class BudgetLevel(Base):
+    __tablename__ = 'budget_level'
+    id = Column(Integer(), primary_key=True)
+    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
+    level = Column(Integer())
+    name = Column(String(255))
+
+class BudgetHeirarchy(Base):
+    __tablename__ = 'budget_heirarchy'
+    id = Column(Integer(), primary_key=True)
+    name = Column('name', String(255))
+    description = Column('description', String(255))
+    level = Column('level', Integer())
+    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
+    parent_id = Column('parent_id', Integer(), ForeignKey('budget_heirarchy.id'))
+

@@ -1,11 +1,10 @@
 from flask import Flask, render_template, jsonify, send_file, url_for, redirect
 from modules import datasources
 from flask_sqlalchemy import SQLAlchemy
-from flask_security import Security, SQLAlchemySessionUserDatastore, \
-    UserMixin, RoleMixin, login_required, utils
+from flask_security import Security, SQLAlchemySessionUserDatastore, UserMixin, RoleMixin, login_required, utils, core
 
-from modules.database import db_session, init_db
-from modules.models import User, Role
+from modules.database import *
+from modules.models import *
 import pandas as pd
 
 # At top of file
@@ -24,6 +23,7 @@ app.config['SECURITY_SEND_REGISTER_EMAIL'] = False
 
 app.config['SECURITY_POST_LOGIN_VIEW'] = '/dash'
 app.config['SECURITY_POST_REGISTER_VIEW'] = '/dash'
+app.config['SECURITY_CONFIRMABLE'] = True
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///user.db'
 
 # After 'Create app'
@@ -33,15 +33,32 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///user.db'
 #mail = Mail(app)
 
 # Setup Flask-Security
+from flask_security.forms import RegisterForm, StringField, Required
+
+#class ExtendedRegisterForm(RegisterForm):
+#    company = StringField('company', [Required()])
+
 user_datastore = SQLAlchemySessionUserDatastore(db_session, User, Role)
 security = Security(app, user_datastore)
 
-# Create a user to test with
+#security = Security(app, user_datastore, register_form=ExtendedRegisterForm)
+
+# This processor is added to only the register view
+@security.register_context_processor
+def security_register_processor():
+    return dict(company="company")
+
+#Create a user to test with
 @app.before_first_request
 def create_user():
     init_db()
-#    user_datastore.create_user(email='ben@benjaminmaher.com', password='password')
-#    db_session.commit()
+ #   mce = Client(name='Marin Clean Energy', domain='mcecleanenergy.org',abbreviation='MCE')
+ #   svce = Client(name='Silicon Valley Clean Energy', domain='svcleanenergy.org',abbreviation='SVCE')
+ #   db_session.add(svce)
+#    init_db()
+ #   user_datastore.create_user(email='ben@benjaminmaher.com', password='password')
+ #   user_datastore.create_user(email='bmaher@mahercpa.com', password='password')
+ #   db_session.commit()
 
 # Views
 @app.route('/')
@@ -77,13 +94,25 @@ def dash():
     file = open('data/usage_comparison.csv','r')
     usage_comparison = file.read()
     dt, col = datasources.query_usage_table()
-    return render_template('dash_content_test.html', usage_comparison=usage_comparison, dt_data = (dt), dt_cols = (col))
+    role_list = [i.name for i in core.current_user.roles]        
+    role_list = ','.join(role_list)
+    return render_template('dash_content_test.html', usage_comparison=usage_comparison, dt_data = (dt), dt_cols = (col), role_names = role_list)
 
 
 @app.route("/morris")
 def morris():
     return render_template('morris.html')
 
+from flask_security.signals import user_registered
+
+@user_registered.connect_via(app)
+def user_registered_sighandler(sender, user, confirm_token):
+    print("print-user_registered_sighandler:", user.email)
+    user.company = 'test company'
+    db_session.commit()
+
+
+user_registered.connect(user_registered_sighandler)
 
 if __name__ == '__main__':
     app.run()

@@ -244,6 +244,8 @@
             ylabel: 'KWh',
             strokeWidth: 2,
             //labelsSeparateLines: true,
+            fillGraph: true,
+
             //labelsDiv: usage_comparison_legend,
             legend: 'follow',
             showRangeSelector: true
@@ -294,10 +296,10 @@
     // The name of the data record attribute that contains x-values.
     xkey: 'usage_month',
     // A list of names of data record attributes that contain y-values.
-    ykeys: ['kwh','revenue'],
+    ykeys: ['invoiced_mwh'],
     // Labels for the ykeys -- will be displayed when you hover over the
     // chart.
-    labels: ['kwh','revenue'],
+    labels: ['kwh'],
     stacked:true,
     barColors:['#2874a6','#17a589','#707b7c','#aab7b8','#a6acaf','#138d75'],
     barOpacity: 0.75,

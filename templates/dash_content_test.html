@@ -4,12 +4,13 @@
 {% block content %}
 <!-- Info boxes -->
     <div class="row">
-      <div class="col-md-3 col-sm-6 col-xs-12">
-        <div class="info-box bg-red">
-            <span class="info-box-icon"><i class="fa fa-comments-o"></i></span>
+      <div class="col-md-4 col-sm-6 col-xs-4">
+        <div class="box box-solid box-primary bg-blue">
+            <!--span class="info-box-icon"><i class="fa fa-comments-o"></i></span-->
             <div class="info-box-content">
-              <span class="info-box-text">Likes</span>
-              <span class="info-box-number">41,410</span>
+              <span class="info-box-text">KwH Invoiced by Day</span>
+              <div class="ct-chart ct-golden-section" id="chart1"></div>
+              <!--span class="info-box-number">41,410</span -->
               <!-- The progress section is optional -->
               <div class="progress">
                 <div class="progress-bar" style="width: 70%"></div>
@@ -22,7 +23,7 @@
           </div>
       </div>
       <!-- /.col -->
-      <div class="col-md-3 col-sm-6 col-xs-12">
+      <div class="col-md-2 col-sm-6 col-xs-12">
         <div class="info-box">
           <span class="info-box-icon bg-red"><i class="fa fa-google-plus"></i></span>
 
@@ -120,8 +121,8 @@
                     </p>
   
                     <div class="progress-group">
-                      <span class="progress-text">Add Products to Cart</span>
-                      <span class="progress-number"><b>160</b>/200</span>
+                        <span class="progress-text">Complete Purchase</span>
+                        <span class="progress-number"><b>310</b>/400</span>
   
                       <div class="progress sm">
                         <div class="progress-bar progress-bar-aqua" style="width: 80%"></div>
@@ -233,6 +234,8 @@
     <script src="//cdn.datatables.net/fixedcolumns/3.2.3/js/dataTables.fixedColumns.min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.0/chartist.min.js"></script>
+    <script src="{{ url_for('static', filename='dist/js/chartist-plugin-tooltip.min.js') }}"></script>
     <script type="text/javascript">
       $(function() {
       g = new Dygraph(
@@ -305,7 +308,8 @@
     barOpacity: 0.75,
     resize: true,
     redraw: true,
-    hideHover: 'auto'
+    hideHover: 'auto',
+    plugins: [Chartist.plugins.tooltip()]
   
   });
   $.getJSON('/jsondata', function(data, status) {});
@@ -323,4 +327,25 @@
       chart_rec.setData(chart_rec.options.data)
     }
   </script>      
+  <script>
+      var jqxhr = $.getJSON( "/data/chartist", function( dataset ) {
+          myChart = new Chartist.Bar('#chart1', dataset,
+           {
+              seriesBarDistance: 1,
+              plugins: [
+                Chartist.plugins.tooltip()
+                ],
+              axisX: {
+                showGrid: false,
+                showLabel: false,
+                offset: 30
+              },
+              axisY: {
+                showGrid: false,
+                showLabel: false,
+                offset: 0
+              }            
+          })
+        });
+  </script>
 {% endblock %}

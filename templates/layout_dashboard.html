@@ -24,6 +24,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
   <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
   <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.0/chartist.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='dist/css/chartist-plugin-tooltip.css') }}">
   
   <style type="text/css">
     .dygraph-legend {
@@ -36,11 +38,17 @@ scratch. This page gets rid of all links and provides the needed markup only.
       width: 100px;
       z-index: 100;
     }
+
     .dataTable {
       background-color: #fff;
       }
     pre {
       margin-top: 30px;
+    }
+
+    .ct-series-a .ct-bar {
+  /* Colour of your bars */
+    stroke: white;
     }
   </style>
   <!-- AdminLTE Skins. We have chosen the skin-blue for this starter
@@ -121,7 +129,7 @@ desired effect
                       <div class="pull-left">
                         <!-- User Image -->
                         
-                        <img src="{{ url_for('static', filename='dist/img/user2-160x160.jpg') }}" class="img-circle" alt="User Image">
+                        <!--img src="{{ url_for('static', filename='dist/img/user2-160x160.jpg') }}" class="img-circle" alt="User Image" -->
                       </div>
                       <!-- Message title and timestamp -->
                       <h4>

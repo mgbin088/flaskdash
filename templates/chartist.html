@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.0/chartist.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.0/chartist.min.js"></script>
+
+<style type="text/css">
+  .morris-hover.morris-default-style {
+    fill-opacity: 1.0;
+  }
+
+  .ct-series-b .ct-bar {
+  /* Colour of your bars */
+  stroke: white;
+  }
+ 
+  </style>
+header</head>
+<body>
+<p>test morris</p>
+<div class="ct-chart ct-golden-section" id="chart1"></div>
+
+<script>
+    
+    //$.getJSON('/data/chartist', function(data, status) {});
+    var jqxhr = $.getJSON( "/data/chartist", function( dataset ) {
+        console.log( "success" );
+        myChart = new Chartist.Bar('#chart1', dataset,
+         {
+            seriesBarDistance: 10,
+            axisX: {
+            offset: 60
+            },
+            axisY: {
+            offset: 80,
+            labelInterpolationFnc: function(value) {
+            return value / 1000
+            },
+            scaleMinSpace: 15
+            }            
+        })
+      });
+    
+        //var data = {};
+        //{
+        //  labels: ['a','b','c','d'], //dataset.labels,
+        //  series: [[1,2,3,4]]//dataset.series
+        //};
+    
+    // Initialize a Line chart in the container with the ID chart1
+    //myChart = new Chartist.Line('#chart1', data);
+
+</script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+
+{% macro new_chart(id) %}
+<canvas id="{{'chartjs' + id}}">
+</canvas>
+
+<script>
+    //$.getJSON('/data/chartist', function(data, status) {});
+    var xhr = $.getJSON( "/data/chartist", function( datas ) {
+    var canvas123 = document.getElementById("{{'chartjs' + id}}").getContext('2d');
+    var chart_js = new Chart(canvas123, {
+    // The type of chart we want to create
+          type: 'bar',
+          // The data for our dataset
+          data: {
+              labels: datas.labels,
+              datasets: [{
+                  label: "KWh by Day",
+                  backgroundColor: 'rgb(255, 99, 132)',
+                  borderColor: 'rgb(255, 99, 132)',
+                  data: datas.series[0],
+              }]
+          },
+          options: {
+            legend:false,
+            scales: {
+              xAxes: [{
+                      display:false,
+                      gridLines: {
+                        display:false
+                          }
+                      }],
+              yAxes: [{  display:false,
+                          gridLines: {
+                              display:false
+                          }   
+                     }]
+                 }}
+              });
+    });
+</script>
+{% endmacro %}

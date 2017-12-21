@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_security import Security, SQLAlchemySessionUserDatastore, UserMixin, RoleMixin, login_required, utils, core
 from modules.database import *
 from modules.models import *
+from modules.data_processing import *
 import pandas as pd
 import os
 from flask_mail import Mail
@@ -93,17 +94,22 @@ def dash():
     file = open('data/usage_comparison.csv','r')
     usage_comparison = file.read()
     dt, col = datasources.query_usage_table()
+    invoice_matrix = invoice_usage_matrix('pce','usage_total_kwh', 20161101, 20171101) \
+                        .to_html(classes = 'table table-hover table-small-row" id="tblUsageInvoice', border = 0, \
+                        float_format=lambda x: '%12.1f' % x)
     role_list = [i.name for i in core.current_user.roles]        
     role_list = ','.join(role_list)
-    return render_template('dash_content_test.html', usage_comparison=usage_comparison, dt_data = (dt), dt_cols = (col), role_names = role_list)
+    return render_template('dash_content_test.html', \
+        usage_comparison=usage_comparison, \
+        dt_data = (dt), dt_cols = (col), role_names = role_list, invoice_matrix = invoice_matrix)
 
 @app.route("/data/chartist")
 def newchart():
-    return jsonify(datasources.chartist_data('pce'))
+    return jsonify(datasources.chartist_data('pce', nolabels=True))
 
 @app.route("/newchart")
 def data_chartist():
-    return render_template('chartist.html')
+    return render_template('chartjs.html')
 
 
 @app.route("/budget")
@@ -134,5 +140,5 @@ def user_registered_sighandler(sender, user, confirm_token):
 user_registered.connect(user_registered_sighandler)
 
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0')
 

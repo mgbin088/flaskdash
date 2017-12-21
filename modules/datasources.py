@@ -2,11 +2,14 @@
 import pandas as pd
 #from sqlalchemy import Table, select
 from flask import jsonify
-import datetime
+#import datetime
+from datetime import datetime, date
 from dateutil.relativedelta import relativedelta
 import os
 
-data_path = 'e:\\BenProjects\\flaskdash\\data\\'
+
+#data_path = 'e:\\BenProjects\\flaskdash\\data\\'
+data_path = '/var/www/data/'
 
 #class latest_dates():
 def get_latest_dates(client_abbreviation):
@@ -39,7 +42,7 @@ def chartist_data(client_abbreviation, nolabels=False):
     df = df[['usage_total_kwh']]
     df = df.fillna("null")
     #df = df[df['usage_total_kwh'].first_valid_index():df['usage_total_kwh'].last_valid_index()]
-    dtrng_start = datetime.date.today().replace(day=1)
+    dtrng_start = date.today().replace(day=1)
     dtrng_end = dtrng_start + relativedelta(months=1) + relativedelta(days=-1)
     print(dtrng_start.strftime('%Y-%m-%d') + dtrng_end.strftime('%Y-%m-%d'))
     df = df[dtrng_start.strftime('%Y-%m-%d'):dtrng_end.strftime('%Y-%m-%d')]
@@ -64,7 +67,7 @@ def chartist_data(client_abbreviation, nolabels=False):
 def query_usage_table():
     fname = 'pce_table_monthly_usage.csv'
     df = pd.read_csv(os.path.join(data_path, fname))
-    if isinstance(df.iloc[0,0], datetime.date):
+    if isinstance(df.iloc[0,0], date):
         df[df.columns[0]] = pd.to_datetime(df[df.columns[0]])
         df[df.columns[0]] = df[df.columns[0]].dt.strftime('%b-%y')
     df = df.set_index(df.columns[0])
@@ -78,8 +81,59 @@ def query_usage_table():
     [cnames.append({"title":i}) for i in df.index]
     return data, cnames
 
+
+class chartData:
+    def __init__(self, dataframe):
+        """Return a chartData object."""
+        
+        self.df = dataframe
+
+    def nolabels(self, reindex=False):
+        df = self.df
+        if not reindex:
+            data = {'labels':df.index.tolist()}
+        elif isinstance(reindex, str):
+            if reindex in df.reset_index().columns:
+                df = df.reset_index().set_index(reindex)
+                data = {'labels':df.index.tolist()}
+            else:
+                raise ValueError("Invalid Index: not an existing column")
+        else:
+            raise ValueError("Invalid Index: must be a string")
+            
+        rec = []
+        for c in df.columns:
+            rec.append(df[c].tolist())
+        data['series'] = rec
+        return data
+    
+    def labels(self, reindex=False):
+        df = self.df
+        if not reindex:
+            data = {'labels':df.index.tolist()}
+        elif isinstance(reindex, str):
+            if reindex in df.reset_index().columns:
+                df = df.reset_index().set_index(reindex)
+                data = {'labels':df.index.tolist()}
+            else:
+                raise ValueError("Invalid Index: not an existing column")
+        else:
+            raise ValueError("Invalid Index: must be a string")
+        
+        
+        rec = []
+        for c in df.columns:
+            ser = []
+            for ix, rw in df[c].iteritems():
+                ser.append({"meta":ix,"value":rw})
+            rec.append(ser)
+        data['series'] = rec
+        return data
+
+
 if __name__ == "__main__":
     print('running...')
-    dt = get_latest_dates()
+    dt, col = query_usage_table()
     print(dt)
+    print(col)
 

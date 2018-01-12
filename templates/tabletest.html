@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="{{ url_for('static', filename='bower_components/jquery/dist/jquery.min.js') }}"></script>
+header</head>
+<body>
+<select id = "seldept">
+  <option value="0">0</option>
+  <option value="1">1</option>
+  <option value="3">4</option>
+  <option value="4">4</option>
+  <option value="5">5</option>
+</select>
+
+<div id="testtbl"></div>
+</body>
+</html>
+<script type="text/javascript">
+
+  
+// A $( document ).ready() block.
+$( document ).ready(function() {
+    console.log( "ready!" );
+    $('#testtbl').html('partial');
+
+
+
+});
+
+$( "#seldept" ).change(function() {
+    var sel = ""
+    $( "select option:selected" ).each(function() {
+      sel += $( this ).text() + "";
+    });
+    var url = "/budget/" + sel + "/test";
+    console.log(url)
+      $.ajax({
+        url: url,
+        //data: {
+        //    txtsearch: $('#appendedInputButton').val()
+        //},
+        type: "GET",
+        dataType: "html",
+        success: function (data) {
+            //var result = $('<div />').append(data).find('#showresults').html();
+            $('#testtbl').html(data);
+        },
+        error: function (xhr, status) {
+            alert("Sorry, there was a problem!");
+        },
+        complete: function (xhr, status) {
+            //$('#showresults').slideDown('slow')
+        }
+    });
+});
+  
+
+
+// Load the xml file using ajax 
+</script>

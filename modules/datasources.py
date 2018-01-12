@@ -64,6 +64,37 @@ def chartist_data(client_abbreviation, nolabels=False):
     return data
 
 
+def chartjs_data(data_col, client_abbreviation, chart_types=['bar','line'], nolabels=False):
+    #fname = client_abbreviation + '_invoice_record_counts.csv'
+    #print(fname)
+    #df = pd.read_csv(os.path.join(data_path, fname))
+    df = data_col.invoice_record_counts
+    
+    print(df.shape)
+    #Trim invalid dates off beginning and end
+    df = df.set_index('day').sort_index()
+    #df = df[['usage_total_kwh','commodity_charges']]
+    df = df[['usage_total_kwh','commodity_charges']]
+    df = df.fillna("null")
+    #df = df[df['usage_total_kwh'].first_valid_index():df['usage_total_kwh'].last_valid_index()]
+    dtrng_start = date.today().replace(day=1)
+    dtrng_end = dtrng_start + relativedelta(months=1) + relativedelta(days=-1)
+    print(dtrng_start.strftime('%Y-%m-%d') + dtrng_end.strftime('%Y-%m-%d'))
+    df = df[dtrng_start.strftime('%Y-%m-%d'):dtrng_end.strftime('%Y-%m-%d')]
+
+    data = {'labels':df.index.tolist()}
+    rec = []
+    for i, c in enumerate(df.columns):
+        d = {'label' : c,
+             'data' : df[c].tolist()}
+        if isinstance(chart_types, list):
+            d['type'] = chart_types[i]
+        rec.append(d)
+    data['datasets'] = rec
+    return data
+
+
+
 def query_usage_table():
     fname = 'pce_table_monthly_usage.csv'
     df = pd.read_csv(os.path.join(data_path, fname))

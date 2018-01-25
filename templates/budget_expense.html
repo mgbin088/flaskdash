@@ -1,0 +1,328 @@
+{% import 'chart_assist.html' as cht %}
+{% extends "layout_dashboard.html" %} {% block content %}
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <h1>
+        Department Budget
+        <small>Optional description</small>
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
+        <li class="active">Here</li>
+      </ol>
+    </section>
+        <!-- Main content -->
+<section class="content container-fluid">
+  <!-- fix for small devices only -->
+  <div class="clearfix visible-sm-block"></div>
+<div class="row">
+  <div class="col-md-6">
+    <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">Spend by Month</h3>
+
+        <div class="box-tools pull-right">
+          <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+              </button>
+          <div class="btn-group">
+            <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
+                  <i class="fa fa-wrench"></i></button>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#">Action</a></li>
+              <li><a href="#">Another action</a></li>
+              <li><a href="#">Something else here</a></li>
+              <li class="divider"></li>
+              <li><a href="#">Separated link</a></li>
+            </ul>
+          </div>
+          <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+        </div>
+      </div>
+      <!-- /.box-header -->
+      <div class="box-body">
+        <div class="row">
+          <div class="col-md-12" height='500px'>
+            
+                <div id="budget_chart_header_spacer">
+                  <canvas id="budget_norm" height="100%"></canvas>
+                </div>
+            <!-- /.chart-responsive -->
+          </div>
+
+        </div>
+        <!-- /.progress-group -->
+      </div>
+      <!-- /.col -->
+    </div>
+    <!-- /.row -->
+  </div>
+  
+    <div class="col-md-6">
+    <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">Cumulative Spend vs Budget</h3>
+
+        <div class="box-tools pull-right">
+          <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+              </button>
+          <div class="btn-group">
+            <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
+                  <i class="fa fa-wrench"></i></button>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#">Action</a></li>
+              <li><a href="#">Another action</a></li>
+              <li><a href="#">Something else here</a></li>
+              <li class="divider"></li>
+              <li><a href="#">Separated link</a></li>
+            </ul>
+          </div>
+          <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+        </div>
+      </div>
+      <!-- /.box-header -->
+      <div class="box-body">
+        <div class="row">
+          <div class="col-md-12" height='500px'>
+            
+                <div id="budget_chart_header_spacer">
+                  <canvas id="budget_cume" height="100%"></canvas>
+                </div>
+            <!-- /.chart-responsive -->
+          </div>
+
+        </div>
+        <!-- /.progress-group -->
+      </div>
+      <!-- /.col -->
+    </div>
+    <!-- /.row -->
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-8">
+    <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">YTD Expense vs Annual Budget</h3>
+
+        <div class="box-tools pull-right">
+          <button type="button" class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i>
+                  </button>
+          <div class="btn-group">
+            <button type="button" class="btn btn-box-tool dropdown-toggle" data-toggle="dropdown">
+                      <i class="fa fa-wrench"></i></button>
+            <ul class="dropdown-menu" role="menu">
+              <li><a href="#">Action</a></li>
+              <li><a href="#">Another action</a></li>
+              <li><a href="#">Something else here</a></li>
+              <li class="divider"></li>
+              <li><a href="#">Separated link</a></li>
+            </ul>
+          </div>
+          <button type="button" class="btn btn-box-tool" data-widget="remove"><i class="fa fa-times"></i></button>
+        </div>
+      </div>
+
+      <!-- /.FIRST FULL ROW BOX -->
+      <div class="box-body">
+        <div class="row">
+          <!-- /.LEFT SECTION IN BOX -->
+          <div class="col-md-12">
+              <div class="chart">
+              <!-- Sales Chart Canvas -->
+              <div id="budget">
+                {{budget_line_table|safe}}
+                
+              </div>
+            </div>
+          </div>
+          <!-- /.col -->
+        </div>
+        <!-- /.row -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="box">
+      <div class="box-header with-border">
+        <h3 class="box-title">Spend by Vendor</h3>
+        <div class="box-body table-responsive no-padding">
+          <div>
+                {{vendor_tbl|safe}}
+                
+          </div>
+          <!--table id="dtexample" class="hover stripe"></table-->
+       
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END PASTE  -->
+
+</div>
+</div>
+</section>
+<!-- /.content -->
+</div>
+<!-- END PASTE  -->
+
+<!--script src="//cdnjs.cloudflare.com/ajax/libs/dygraph/2.0.0/dygraph.min.js"></script-->
+<script src="//cdn.datatables.net/1.10.16/js/jquery.dataTables.min.js"></script>
+<script src="//cdn.datatables.net/fixedcolumns/3.2.3/js/dataTables.fixedColumns.min.js"></script>
+<script src="/static/bower_components/jquery-sparkline/dist/jquery.sparkline.min.js"></script>
+<script>
+    //$.getJSON('/data/chartist', function(data, status) {});
+
+//$(function() {
+//function draw_chartjs() {
+console.log('requesty xhr');
+    var xhr = $.getJSON( "/budget/Outreach%20and%20communications", function( datas ) {
+      
+      $(document).ready(function() {
+        var canvas_norm = document.getElementById("budget_norm").getContext('2d');
+        var chart_js = new Chart(canvas_norm, {
+        // The type of chart we want to create
+              type: 'bar',
+              // The data for our dataset
+              data: datas.norm,
+              options: {
+                maintainAspectRatio: true,
+                barOptions_stacked: true,
+                borderWidth: 1,
+                legend:false,
+                spanGaps: true,
+                legend: {display: true},
+                hover: {mode: 'dataset'},
+                tooltips: {         
+                  callbacks: {
+                    label: function(tooltipItem, data) {
+                        var ylab = Math.round(tooltipItem.yLabel,0);
+                        return ylab.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                        },
+                  },
+                },
+
+                //backgroundColor = '#FFFFFF'
+                scales: {
+                  
+                  xAxes: [{
+                          display:true,
+                          stacked:true,
+                          gridLines: {
+                            display:true
+                              }
+                          }],
+                  yAxes: [{  display:true,
+                             stacked:true,
+                  
+                              gridLines: {
+                                  display:true
+                              },
+                              ticks: {
+                                  // Include a dollar sign in the ticks
+                                  callback: function(value, index, values) {
+                                      value = '$' + Math.round(value,0) / 1000;
+                                      return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                  }
+                              },
+                              scaleLabel: {display:true, labelString:"$ thousands"}
+                         }]
+                     }}
+                  });
+
+
+        var canvas_cume = document.getElementById("budget_cume").getContext('2d');
+        var chart_js_cume = new Chart(canvas_cume, {
+        // The type of chart we want to create
+              type: 'line',
+              // The data for our dataset
+              data: datas.cume,
+              options: {
+                maintainAspectRatio: true,
+                barOptions_stacked: true,
+                legend:false,
+                spanGaps: true,
+                legend: {display: true},
+                tooltips: {         
+                  callbacks: {
+                    label: function(tooltipItem, data) {
+                        var ylab = Math.round(tooltipItem.yLabel,0);
+                        return ylab.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                        },
+                  },
+                },
+                //backgroundColor = '#FFFFFF'
+                scales: {
+                  xAxes: [{
+                          display:true,
+                          stacked:false,
+                          gridLines: {
+                            display:true
+                              }
+                          }],
+                  yAxes: [{  display:true,
+                             stacked:false,
+                  
+                              gridLines: {
+                                  display:true
+                              },
+                              ticks: {
+                                  // Include a dollar sign in the ticks
+                                  callback: function(value, index, values) {
+                                      value = '$' + Math.round(value,0) / 1000;
+                                      return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+                                  }
+                              },
+                              scaleLabel: {display:true, labelString:"$ thousands"}
+                         }]
+                     }}
+                  });
+
+
+
+        });
+      
+    });
+      
+//  };
+</script>
+
+<script>
+$(function() {
+  $(".spark-bullet").each(function () {
+        var $this = $(this);
+        $this.sparkline('html',
+        {
+            type:"bullet",
+            disableInteraction:"True",
+            width:"100px",
+            height:"25px",
+            targetWidth:"1",
+            targetColor:"#111",
+            performanceColor:"rgba(51, 110, 147, 1)",
+            //range to represent committed | budget | overbudget-spent 
+            rangeColors:['#ebf1f4','rgba(198,85,85,1)','rgba(51, 110, 147, 1)']
+            
+        })
+      
+  });
+});
+</script>
+<script>
+$(document).ready(function() {
+    $('#vendors').DataTable();
+} );
+</script>
+
+<!--script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script-->
+<!--script src="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.0/chartist.min.js"></script-->
+<!--script src="{{ url_for('static', filename='dist/js/chartist-plugin-tooltip.min.js') }}"></script-->
+
+{% endblock %}

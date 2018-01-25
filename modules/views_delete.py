@@ -67,11 +67,14 @@ def data_chartist():
 
 @app.route("/budget/<dept>")
 def budget(dept):
-    r = rpt.rpt_budget_dept(data.scp)
+    print('running budget...')
+    rdata = rpt.rpt_budget_dept(data.scp)
+    rpt = rpt.rpt_present(rdata)
     #print(dept)
     tbl = r.get_budget_actual(dept).to_html(float_format=lambda x: '{:,.0f}'.format(x), index=False)
+    chart_data = rpt.chartjs_data()
     #return render_template('blank.html', content=tbl)
-    return Response(tbl, mimetype='text/xml')
+    return jsonify(chart_data) #Response(tbl, mimetype='text/xml')
 
 
 @app.route("/pdf/budget")

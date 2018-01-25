@@ -1,5 +1,21 @@
 {% import 'chart_assist.html' as cht %}
 {% extends "layout_dashboard.html" %} {% block content %}
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <h1>
+        CCA Test Dashboard
+        <small>Optional description</small>
+      </h1>
+      <ol class="breadcrumb">
+        <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
+        <li class="active">Here</li>
+      </ol>
+    </section>
+    <!-- Main content -->
+    <section class="content container-fluid">
+
 <!-- Info boxes -->
 <div class="row">
   <div class="col-md-3 col-sm-6 col-xs-4">
@@ -24,8 +40,8 @@
   <!-- /.col -->
   <div class="col-md-3 col-sm-6 col-xs-12">
     <div class="info-box bg-light-blue">
-          
-        <span class="info-box-text">{{role_names}}</span>
+        {{cht.new_chart('1')}}
+        
         <span class="info-box-number">41,410</span>
       <!-- /.info-box-content -->
     </div>
@@ -102,10 +118,8 @@
             </p>
 
             <div class="chart">
-              <button onclick="draw_chartjs()">show</button>
-<canvas id="chartjs1"></canvas>
               <!-- Sales Chart Canvas -->
-              <!--div id="usage_comparison" style="height: 280px;"></div-->
+              <div id="usage_comparison" style="height: 280px;"></div>
             </div>
             <!-- /.chart-responsive -->
           </div>
@@ -225,6 +239,10 @@
 </div>
 </div>
 </div>
+</section>
+<!-- /.content -->
+</div>
+  <!-- /.content-wrapper -->
 <!-- END PASTE  -->
 
 <!--script src="//cdnjs.cloudflare.com/ajax/libs/dygraph/2.0.0/dygraph.min.js"></script-->
@@ -235,44 +253,6 @@
 <!--script src="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.0/chartist.min.js"></script-->
 <!--script src="{{ url_for('static', filename='dist/js/chartist-plugin-tooltip.min.js') }}"></script-->
 
-<script>
-    //$.getJSON('/data/chartist', function(data, status) {});
-
-//$(function() {
-function draw_chartjs() {
-    var xhr = $.getJSON( "/data/chartist", function( datas ) {
-    
-    console.log('xhr is done...')
-    var canvas123 = document.getElementById("chartjs1").getContext('2d');
-    console.log(canvas123)
-    var chart_js = new Chart(canvas123, {
-    // The type of chart we want to create
-          type: 'bar',
-          // The data for our dataset
-          data: datas,
-          options: {
-            legend:false,
-            scales: {
-              xAxes: [{
-                      //display:false,
-                      gridLines: {
-                        display:false
-                          }
-                      }],
-              yAxes: [{  //display:false,
-                          gridLines: {
-                              display:false
-                          }   
-                     }]
-                 }}
-              });
-      console.log(chart_js)
-    //chart_js.update();
-      
-    });
-    
-};
-</script>
 <script type="text/javascript">
   $(function() {
     g = new Dygraph(

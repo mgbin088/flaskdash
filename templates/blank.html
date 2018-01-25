@@ -1,9 +1,35 @@
 <!DOCTYPE html>
 <html>
 <head>
+<script src="{{ url_for('static', filename='bower_components/jquery/dist/jquery.min.js') }}"></script>
+<script src="/static/bower_components/jquery-sparkline/dist/jquery.sparkline.min.js"></script>
 
 header</head>
 <body>
 {{content | safe}}
+
+<!--div class="sparkline" data-type="bullet" data-spot-Radius="3" data-highlight-Spot-Color="#f39c12" data-highlight-Line-Color="#222" data-min-Spot-Color="#f56954" data-max-Spot-Color="#00a65a" data-spot-Color="#39CCCC" data-offset="90" data-width="100%" data-height="100px" data-line-Width="2" data-line-Color="#39CCCC" data-fill-Color="rgba(57, 204, 204, 0.08)"-->
+<span class="spark-bullet">
+                144999,200365,360000
+              </span>
 </body>
+
+<script>
+$(".spark-bullet").each(function () {
+      var $this = $(this);
+      $this.sparkline('html',
+      {
+          type:"bullet",
+          width:"100%",
+          height:"100%",
+          targetColor:"#111",
+          performanceColor:"#3a638c",
+          //range to represent committed | budget | overbudget-spent 
+          rangeColors:['#d8e4e9','#C4AFDD','#d8e4e9']
+          
+      })
+    
+});
+
+</script>
 </html>

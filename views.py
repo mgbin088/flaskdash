@@ -1,25 +1,29 @@
 from flask import Flask, render_template, jsonify, send_file, url_for, redirect, Response, abort
-from modules import datasources
+from mahercpa import app, mail #, security, user_datastore
+from .modules import datasources
 from flask_sqlalchemy import SQLAlchemy
 from flask_security import Security, SQLAlchemySessionUserDatastore, UserMixin, RoleMixin, login_required, roles_required, roles_accepted, utils, core, current_user
 from flask_security.forms import RegisterForm, StringField, Required
+from flask_security.signals import user_registered
 
-from modules.database import *
-from modules.models import *
-from modules.data_processing import *
-from modules.data_collection import *
-import modules.reports as rpt
+from .modules.database import *
+from .modules.models import *
+from .modules.data_processing import *
+from .modules.data_collection import *
+from .modules.reports import *
 
 # Setup Flask-Security
 import pandas as pd
 import os
+from datetime import datetime
 from flask_mail import Mail
+pd.set_option('display.max_colwidth', -1)
 
 # Create app
-app = Flask(__name__)
-app.config.from_envvar('FLASKDASH_SETTINGS')
+#app = Flask(__name__)
+#app.config.from_envvar('FLASKDASH_SETTINGS')
 
-mail = Mail(app)
+#mail = Mail(app)
 
 #Cache Client Data
 data = data_collection(app.config['DATA_PATH'])
@@ -29,36 +33,64 @@ data.get_data()
 #class ExtendedRegisterForm(RegisterForm):
 #    company = StringField('company', [Required()])
 
+init_db()
 user_datastore = SQLAlchemySessionUserDatastore(db_session, User, Role)
 security = Security(app, user_datastore)
-
 #security = Security(app, user_datastore, register_form=ExtendedRegisterForm)
+
+@roles_required('admin')
+@app.route('/init')
+def populate_new_db():
+    from flask_security.utils import encrypt_password
+    #init_db()
+    #user_client = db_session.query(Client).filter_by(abbreviation='MCE').first()
+    #print(user_client.name)
+    mce = Client(name='Marin Clean Energy', domain='mcecleanenergy.org',abbreviation='MCE')
+    svce = Client(name='Silicon Valley Clean Energy', domain='svcleanenergy.org',abbreviation='SVCE')
+    scp = Client(name='Sonoma Clean Power', domain='sonomacleanpower.org',abbreviation='SCP')
+    pce = Client(name='Peninsula Clean Energy', domain='peninsulacleanenergy.com',abbreviation='PCE')
+    #maher = Client(name='Maher Accountancy', domain='mahercpa.com',abbreviation='MAHER')
+    for c in [mce,scp,pce,svce]:
+        db_session.add(c)
+    
+    user_datastore.create_user(email='bmaher@mahercpa.com', password=encrypt_password('password'), confirmed_at=datetime(2017,1,1))
+    user_datastore.create_user(email='ben@benjaminmaher.com', password=encrypt_password('password'), confirmed_at=datetime(2017,1,1))
+    
+    for r in ['admin','mce','scp','pce','svce']:
+        user_datastore.create_role(name=r)
+
+    db_session.commit()
+    
+    #Assing Default Roles
+    for r in ['admin','mce','scp','pce','svce']:
+        user_datastore.add_role_to_user(user_datastore.get_user('bmaher@mahercpa.com'), r)
+    
+    user_datastore.add_role_to_user(user_datastore.get_user('ben@benjaminmaher.com'), 'scp')
+    
+    #Assing Default Clients
+    user = user_datastore.get_user('bmaher@mahercpa.com')
+    for c in [mce,scp,pce,svce]:
+        c.users.append(user)
+    
+    scp.users.append(user_datastore.get_user('ben@benjaminmaher.com'))
+    
+    
+    db_session.commit()
+    return Response('OK!')
+
+
 
 # This processor is added to only the register view
 @security.register_context_processor
 def security_register_processor():
     return dict(company="company")
 
-#Create a user to test with
-#@app.before_first_request
-def create_user():
-    init_db()
-    #scp = Client(name='Sonoma Clean Power', domain='sonomacleanpower.org',abbreviation='SCP')
-    pce = Client(name='Peninsula Clean Energy', domain='peninsulacleanenergy.com',abbreviation='PCE')
-    #svce = Client(name='Silicon Valley Clean Energy', domain='svcleanenergy.org',abbreviation='SVCE')
-    #maher = Client(name='Maher Accountancy', domain='mahercpa.com',abbreviation='MAHER')
-    #db_session.add(svce)
-    db_session.add(pce)
-    #db_session.add(maher)
-    #user_datastore.create_user(email='ben@benjaminmaher.com', password='password')
-    db_session.commit()
-#create_user()
 
 # Views
 @app.route('/')
 @login_required
 def home():
-    return redirect(url_for('dash'))
+    return redirect('/dash')
 
 
 @app.route("/jsondata")
@@ -84,6 +116,7 @@ def j2():
 
 @app.route("/dash")
 def dash_redirect():
+    print('in dash...' + current_user.email)
     user = user_datastore.get_user(current_user.email)
     client = user.client[0].abbreviation
     re_url = "/client/{}/dash".format(client.lower())
@@ -105,8 +138,8 @@ def dash(client=None):
     cdata = data.__dict__[client.lower()]
     
     ##Prep Dashboard
-    file = open('data/usage_comparison.csv','r')
-    usage_comparison = file.read()
+    #file = open('data/usage_comparison.csv','r')
+    #usage_comparison = file.read()
     dt, col = datasources.query_usage_table()
     invoice_matrix = invoice_usage_matrix('pce','usage_total_kwh', 20161101, 20171101) \
                         .to_html(classes = 'table table-hover table-small-row" id="tblUsageInvoice', border = 0, \
@@ -122,32 +155,72 @@ def dash(client=None):
 def newchart():
     return jsonify(datasources.chartjs_data(data.scp, 'pce', nolabels=False))
 
-@app.route("/newchart")
+@app.route("/chart")
 def data_chartist():
-        
-    user = current_user
-    user_domain = str(user.email).split('@')[1]
-    print(user_domain)
-    user_client = db_session.query(Client).filter_by(domain=user_domain).first()
-    print(user_client.name)
-    
-    if user_client is not None:
-        print(user_client.name)
-        user_client.users.append(user)
-        db_session.commit()
     return render_template('chartjs.html')
 
+@app.route("/client/<client>/budget")
+@login_required
+def budget(client=None):
+    ## SETUP CLIENT
+    user = user_datastore.get_user(current_user.email)
+    if client is None:
+        client = user.client[0].abbreviation
+    
+    if not current_user.has_role(client):
+        abort(403)
+    
+    cdata = data.__dict__[client.lower()]
+    rba = rpt_budget_dept(cdata)
+    rbp = rpt_present(rba.get_budget_actual_bullet_charts('Outreach and communications'))
+    blt = rbp.html()
+    
+    vendor_tbl = rpt_present(
+                    rba.get_vendor_monthly_spend('Outreach and communications')
+                    ).html(html_id="vendors", escape=False,index =False)
+                    
+    return render_template('budget_expense.html', budget_line_table = blt, vendor_tbl = vendor_tbl)
 
-@app.route("/budget/<int:dept>/<title>")
+
+
+
+@app.route("/budgeti/<int:dept>/<title>")
 @login_required
 #@app.route("/budget", methods=['GET'])
-def budget(dept, title):
-    r = rpt.rpt_budget_dept(data.scp)
-    print(title)
-    d = data.scp.account_map.budget_department.unique()[dept]
-    tbl = r.get_budget_actual(d).to_html(float_format=lambda x: '{:,.0f}'.format(x), index=False)
-    return render_template('blank.html', content=tbl)
+def budgeti(dept, title):
+    import math
+    
+    
+    cdata = data.__dict__['scp']
+    rba = rpt_budget_dept(cdata)
+    rbp = rpt_present(rba.get_budget_actual('Outreach and communications'))
+    #target, performance, range1, range2, range3,
+    ht = '<span class="sparkline" data-type="bullet" data-width="100%" data-height="100px" data-targetColor="#111" data-performanceColor="#42869e" data-rangeColors=["#C1AA7F","#C4AFDD","#60B66A"]>{}</span>'
+    max_rng = math.ceil(rbp.df.loc[:,'Budget'].max()/10000)*10000
+    
+    d = rbp.df.assign(bullet = lambda df: df['Budget'].astype('int').astype('str') + ',' + df['Spent'].astype('int').astype('str') + ',' + str(max_rng))    #.map(lambda x: ns(x)))   #.astype('int').astype('str')))
+    d['bullet'] = d['bullet'].map(lambda x: ht.format(x))
+    #tbl = pd.DataFrame({'desc':["This",'That','Other'],'amount':[1,2,3],'html':['<b>bold</b>','br<br>ea<br>k','none']}).to_html(escape=False,index =False)
+    return render_template('blank.html', content=d.to_html(escape=False,index =False))
     #return Response(tbl, mimetype='text/xml')
+    
+@app.route("/budget/<dept>")
+def budget_dept(dept):
+    print('running budget...')
+    rdata = rpt_budget_dept(data.__dict__['scp'])
+    print('got 1...')
+    #rep = rpt_present(rdata.get_budget_actual('Outreach and communications'))
+    ba_cume = rpt_present(rdata.get_budget_actual_month_by_dept('Outreach and communications'))
+    spend_by_line = rpt_present(rdata.get_spend_by_line('Outreach and communications'))
+    #print(dept)
+    #tbl = r.get_budget_actual(dept).to_html(float_format=lambda x: '{:,.0f}'.format(x), index=False)
+    chart_data = {}
+    #chart_data['norm'] = rep.chartjs_data(data_col_list = ['Budget','Spent'], cumulative=False) #data_col_list=['Spent','Remaining'], index_col_list='budget_line')
+    chart_data['norm'] = spend_by_line.chartjs_data()
+    chart_data['cume'] = ba_cume.chartjs_data(data_col_list = ['Budget','Spent'], cumulative=True, pallet_name='default')
+    #return render_template('blank.html', content=tbl)
+    return jsonify(chart_data) #Response(tbl, mimetype='text/xml')
+
 
 @app.route('/tabletest')
 def tabletest():
@@ -218,9 +291,6 @@ def show_client_data(client_abbrev):
     #return render_template('blank.html', content=cdata.table_statistics.to_html())
     return redirect()
     
-    
-    
-    
 
 @app.route("/roles/assign/<user>/<role>")
 @login_required
@@ -232,7 +302,7 @@ def add_role_to_user(user, role):
     return Response(role)
 
     
-from flask_security.signals import user_registered
+
 
 @user_registered.connect_via(app)
 def user_registered_sighandler(sender, user, confirm_token):
@@ -251,6 +321,6 @@ def user_registered_sighandler(sender, user, confirm_token):
 user_registered.connect(user_registered_sighandler)
 
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+#if __name__ == '__main__':
+#    app.run(host='0.0.0.0')
 

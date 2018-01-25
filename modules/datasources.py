@@ -86,7 +86,9 @@ def chartjs_data(data_col, client_abbreviation, chart_types=['bar','line'], nola
     rec = []
     for i, c in enumerate(df.columns):
         d = {'label' : c,
-             'data' : df[c].tolist()}
+             'data' : df[c].tolist(),
+            'backgroundColor':'#FFFFFF'
+        }
         if isinstance(chart_types, list):
             d['type'] = chart_types[i]
         rec.append(d)

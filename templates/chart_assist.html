@@ -1,34 +1,50 @@
 
 {% macro new_chart(id) %}
+<button onclick="draw_chartjs()">show</button>
 <canvas id="{{'chartjs' + id}}">
 </canvas>
 
 <script>
     //$.getJSON('/data/chartist', function(data, status) {});
-    var xhr = $.getJSON( "/data/chartist", function( datas ) {
+
+//$(function() {
+function draw_chartjs() {
+    var xhr = $.getJSON( "/budget/Outreach%20and%20communications", function( datas ) {
+    
+    //console.log('xhr is done...')
     var canvas123 = document.getElementById("{{'chartjs' + id}}").getContext('2d');
+    //console.log(canvas123)
     var chart_js = new Chart(canvas123, {
     // The type of chart we want to create
-          type: 'bar',
+          type: 'horizontalBar',
           // The data for our dataset
           data: datas,
           options: {
+            barOptions_stacked: true,
             legend:false,
+            //backgroundColor = '#FFFFFF'
             scales: {
               xAxes: [{
-                      display:false,
+                      display:true,
+                      stacked:true,
                       gridLines: {
                         display:false
                           }
                       }],
-              yAxes: [{  display:false,
+              yAxes: [{  display:true,
+                         stacked:true,
+              
                           gridLines: {
                               display:false
                           }   
                      }]
                  }}
               });
+    //chart_js.update();
+      //console.log(chart_js)
     });
+    
+};
 </script>
 {% endmacro %}
 

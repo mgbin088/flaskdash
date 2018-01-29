@@ -90,7 +90,7 @@ def security_register_processor():
 @app.route('/')
 @login_required
 def home():
-    return redirect('/dash')
+    return redirect('/budget')
 
 
 @app.route("/jsondata")
@@ -99,7 +99,7 @@ def jsondata():
 
 @app.route("/usage_comparison")
 def usage_comparison():
-    return send_file('data/usage_comparison.csv',cache_timeout=60)
+    return send_file('data/usage_comparison.csv', cache_timeout=60)
 
 @app.route("/sample_json")
 def sample_json():
@@ -109,7 +109,7 @@ def sample_json():
 
 
 @app.route("/logout")
-def j2():
+def logout():
     utils.logout_user()
     return "logged out"
 
@@ -120,6 +120,14 @@ def dash_redirect():
     user = user_datastore.get_user(current_user.email)
     client = user.client[0].abbreviation
     re_url = "/client/{}/dash".format(client.lower())
+    return redirect((re_url))
+    
+@app.route("/budget")
+def budget_redirect():
+    print('in dash...' + current_user.email)
+    user = user_datastore.get_user(current_user.email)
+    client = user.client[0].abbreviation
+    re_url = "/client/{}/budget".format(client.lower())
     return redirect((re_url))
 
 
@@ -159,6 +167,11 @@ def newchart():
 def data_chartist():
     return render_template('chartjs.html')
 
+
+##############################################################################
+#
+#BUDGET DASHBOARD
+#############################################################################
 @app.route("/client/<client>/budget")
 @login_required
 def budget(client=None):
@@ -174,14 +187,37 @@ def budget(client=None):
     rba = rpt_budget_dept(cdata)
     rbp = rpt_present(rba.get_budget_actual_bullet_charts('Outreach and communications'))
     blt = rbp.html()
+    vendor_detail = rpt_present(rba.get_vendor_detail('Outreach and communications','wpONcall'))
+    
+    print(vendor_detail.df.info())
     
     vendor_tbl = rpt_present(
                     rba.get_vendor_monthly_spend('Outreach and communications')
                     ).html(html_id="vendors", escape=False,index =False)
                     
-    return render_template('budget_expense.html', budget_line_table = blt, vendor_tbl = vendor_tbl)
+    return render_template('budget_expense.html', budget_line_table = blt, vendor_tbl = vendor_tbl, vendor_detail=vendor_detail.html(html_id="vendors",index =False))
 
-
+@app.route("/data/<client>/vendor/<level>")
+@login_required
+def get_vendor_json(client, level):
+    bud_dept = 'Outreach and communications'
+    ## SETUP CLIENT
+    user = user_datastore.get_user(current_user.email)
+    if client is None:
+        client = user.client[0].abbreviation
+    
+    if not current_user.has_role(client):
+        abort(403)
+    
+    cdata = data.__dict__[client.lower()]
+    rba = rpt_budget_dept(cdata)
+    #vendor_detail = rpt_present(rba.get_vendor_detail('Outreach and communications','wpONcall'))
+    vendor_tbl = rpt_present(
+                    rba.get_vendor_detail('Outreach and communications','wpONcall')
+                    #rba.get_vendor_monthly_spend('Outreach and communications')
+                    ).df.to_json(orient='records')    #.datatables()
+                    
+    return  jsonify(rba.budget_spend_detail(bud_dept)) #Response(vendor_tbl)
 
 
 @app.route("/budgeti/<int:dept>/<title>")
@@ -212,6 +248,7 @@ def budget_dept(dept):
     #rep = rpt_present(rdata.get_budget_actual('Outreach and communications'))
     ba_cume = rpt_present(rdata.get_budget_actual_month_by_dept('Outreach and communications'))
     spend_by_line = rpt_present(rdata.get_spend_by_line('Outreach and communications'))
+    
     #print(dept)
     #tbl = r.get_budget_actual(dept).to_html(float_format=lambda x: '{:,.0f}'.format(x), index=False)
     chart_data = {}

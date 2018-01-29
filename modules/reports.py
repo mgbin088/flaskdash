@@ -132,9 +132,53 @@ class rpt_budget_dept:
 
 
         vs.columns = [pd.to_datetime(vs.columns).strftime("%b'%y")]
+        vs.columns = vs.columns.get_level_values(0)
         vs = vs.reset_index()
         return vs
+        
+    def get_vendor_detail(self, budget_dept, vendor=''):
+        #budget_dept = 'Outreach and communications'
+        filt_cat = "budget_department == '{}'".format(budget_dept)
+        dt_filt = "date >= '{}' & date <= '{}'".format(self.data_col.dates.ytd[0].strftime('%Y-%m-%d'), self.data_col.dates.ytd[1].strftime('%Y-%m-%d'))
+        if vendor != '':
+            filt_cat = filt_cat + " & name == '{}'".format(vendor)
             
+        vs = (self.actual
+                 .query(dt_filt + " & " + filt_cat)
+                 .loc[:,['txn_number','date','ref_num','name','line_memo','amount']]
+             )
+        return vs
+        
+    def budget_spend_detail(self, budget_dept):    
+        
+        #Get Vendor Summary Data and Group by Budget Line
+        vendor_summary = (self.get_vendor_monthly_spend(budget_dept)
+                            .groupby('budget_line'))
+    
+        #Get Vendor Transaction Data and Group by Vendor
+        vendor_txns = (self.get_vendor_detail(budget_dept).fillna('')
+                       .groupby('name'))
+    
+        #Create Dict object nested by Vendor Name
+        txn = {}
+        for index, value in vendor_txns:
+            txn[index] = value.to_dict(orient='record')
+    
+        #Create Parent object and merge in transaction detail {Budget_line -> Vendor -> Transactions}
+        spend = []
+        for bud_line, line_df in vendor_summary:
+            vendor_df = line_df.to_dict(orient='record')
+            for vendor_line in vendor_df:    
+                #print(vendor_txns[vendor_line['name']])
+                vendor_line['transactions'] = txn[vendor_line['name']]
+            spend.append(vendor_df)
+        #Flatten List on Return
+        flatten = [item for items in spend for item in items]
+        return flatten
+        
+        
+        
+        
 class rpt_present:
     def __init__(self, dataframe):
         self.df = dataframe
@@ -197,3 +241,27 @@ class rpt_present:
             rec.append(d)
         data['datasets'] = rec
         return data
+    
+    def datatables(self):
+        df = self.df.copy()
+        #if isinstance(df.iloc[0,0], date):
+        #    df[df.columns[0]] = pd.to_datetime(df[df.columns[0]])
+        #    df[df.columns[0]] = df[df.columns[0]].dt.strftime('%b-%y')
+        df = df.set_index(df.columns[0])
+        data = df.values.tolist()
+        rnames = df.columns.tolist()
+        #for i in range(0,len(data)):
+        #    data[i].insert(0,rnames[i])
+        
+        #Pull out (new transposed) Column Defs
+        cnames = []
+        [cnames.append({"title":i}) for i in rnames]
+        cnames.append([{"className":'details-control',
+                "orderable":False,
+                "data":'null',
+                "defaultContent": ''}])
+        dt_dict = {}
+        dt_dict['data'] = data
+        dt_dict['columns'] = cnames
+        return dt_dict
+        

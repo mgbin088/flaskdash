@@ -115,6 +115,7 @@ def query_usage_table():
     return data, cnames
 
 
+
 class chartData:
     def __init__(self, dataframe):
         """Return a chartData object."""

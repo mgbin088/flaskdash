@@ -153,10 +153,14 @@
         <h3 class="box-title">Spend by Vendor</h3>
         <div class="box-body table-responsive no-padding">
           <div>
-                {{vendor_tbl|safe}}
+                <!--vendor_detail|safe-->
                 
+                <table id="vendors" class="hover stripe">
+                  
+                </table>
           </div>
-          <!--table id="dtexample" class="hover stripe"></table-->
+          
+          
        
         </div>
       </div>
@@ -263,14 +267,17 @@ console.log('requesty xhr');
                           display:true,
                           stacked:false,
                           gridLines: {
-                            display:true
+                            display:true,
+                            borderDash: [4, 2],
                               }
                           }],
                   yAxes: [{  display:true,
                              stacked:false,
                   
                               gridLines: {
-                                  display:true
+                                  display:true,
+                                  borderDash: [4, 4],
+                                  zeroLineBorderDash: [1]
                               },
                               ticks: {
                                   // Include a dollar sign in the ticks
@@ -315,10 +322,74 @@ $(function() {
 });
 </script>
 <script>
+//$(document).ready(function() {
+//    $('#vendors').DataTable();
+//} );
+
+
 $(document).ready(function() {
-    $('#vendors').DataTable();
+    vendor_dt = $('#vendors').DataTable( {
+        "ajax": {url: "/data/scp/vendor/detail", dataSrc: ''},
+        "columns": [
+            {
+                "className":      'details-control',
+                "orderable":      false,
+                "data":           null,
+                "defaultContent": ''
+            },
+            { "data": "budget_line" },
+            { "data": "name" },
+            { "data": "Jul'17"},
+            { "data": "Aug'17"},
+            { "data": "Sep'17"},
+            { "data": "Oct'17"},
+            { "data": "Nov'17"}
+        ]
+    } );
 } );
+
+/* Formatting function for row details - modify as you need */
+function format ( d ) {
+    console.log(d.transactions);
+    var trs=''; //just a variable to construct
+    $.each($(d.transactions),function(i, txn){
+      
+        trs+='<tr><td>'+d.transactions[i].date+'</td><td>'+d.transactions[i].line_memo+'</td><td>'+d.transactions[i].amount+'</td></tr>';
+        //loop through each product and append it to trs and am hoping that number of price 
+        //values in array will be equal to number of products
+    })
+    // `d` is the original data object for the row
+    return '<table class="table table-border table-hover">'+
+           '<thead>'+
+              '<th>Date</th>'+
+                '<th>Memo</th>'+
+                '<th>Amount</th>'+  
+           '</thead><tbody>' 
+               + trs +
+        '</tbody></table>';
+}
+
+
+    $('#vendors').on('click', 'td.details-control', function () { //, 'td.details-control'
+      console.log('clicked');
+        var tr = $(this).closest('tr');
+        
+        var row = vendor_dt.row( tr );
+ 
+        if ( row.child.isShown() ) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            // Open this row
+            row.child( format(row.data()) ).show();
+            tr.addClass('shown');
+        }
+    } );
+  //"data": data,
 </script>
+
 
 <!--script src="//cdnjs.cloudflare.com/ajax/libs/raphael/2.1.0/raphael-min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.min.js"></script-->

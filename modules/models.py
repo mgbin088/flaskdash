@@ -1,9 +1,14 @@
-from .database import Base
+from .database import Base, get_or_create
 from flask_security import UserMixin, RoleMixin
-from sqlalchemy import create_engine, types
+
+from sqlalchemy import create_engine, types, MetaData, Table, or_, UniqueConstraint, \
+                       Boolean, DateTime, Column, Integer, \
+                       String, ForeignKey, Text, Boolean, ARRAY
+from sqlalchemy.sql import select
+
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy import Boolean, DateTime, Column, Integer, \
-                       String, ForeignKey
+
+
 
 ######################################################################
 ##                    USER AND CLIENT
@@ -59,58 +64,48 @@ class Client(Base):
 ##                    BUDGET TRACKER MODELS
 ######################################################################
 
-#class BudgetProject(Base):
-#    __tablename__ = 'budget_project'
-#    id = Column(Integer(), primary_key=True)
-#    project = Column('budget_project', String(255))
-#    parent_id = Column('parent_id',Integer(),ForeignKey('budget_line.id'))
-#    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
-#    parent = relationship("BudgetLine", back_populates="budget_project")
-
-#class BudgetLine(Base):
-#    __tablename__ = 'budget_line'
-#    id = Column(Integer(), primary_key=True)
-#    line = Column('budget_line', String(255))
-#    parent_id = Column('department_id',Integer(),ForeignKey('budget_department.id'))
-#    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
-#    parent = relationship("BudgetDepartment", back_populates="budget_line")
-
-#class BudgetDepartment(Base):
-#    __tablename__ = 'budget_department'
-#    id = Column(Integer(), primary_key=True)
-#    department = Column('budget_line', String(255))
-#    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
-
-   
-#class Budget(Base):
-#    __tablename__ = 'budget'
-#    id = Column(Integer())
-#    budget_year = Column(Integer(), primary_key=True)
-#    budget_version = Column(Integer(), primary_key=True)
-#    period = Column(Integer(), primary_key=True)
-#    amount = Column('amount', types.Numeric(12, 2))
-#    volume = Column('volume', types.Numeric(12, 2))
-#    budget_line_id = Column('budget_line_id', Integer(), ForeignKey('budget_line.id'))
-#    department_id = Column('department_id', Integer(), ForeignKey('budget_department.id'))
-#    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
+class HeirarchyVersion(Base):
+    __tablename__ = 'heirarchy_version'
+    __table_args__ = (UniqueConstraint('client_id', 'name'),)
+    id = Column(Integer, primary_key=True)
+    client_id =  Column(ForeignKey('client.id'))
+    name = Column(Text, default="budget")
+    description = Column(Text)
+    levels = Column(ARRAY(Text))
+    client = relationship("Client")
+    
+class HeirarchyNode(Base):
+    __tablename__ = 'heirarchy_node'
+    __table_args__ = (UniqueConstraint('client_id', 'heirarchy_id', 'name'),)
+                    
+    id = Column(Integer, primary_key=True)
+    heirarchy_id = Column(Integer, ForeignKey('heirarchy_version.id'))
+    parent_id = Column(Integer, ForeignKey('heirarchy_node.id'))
+    client_id = Column(ForeignKey('client.id'))
+    name = Column(Text, unique=True, nullable=False)
+    name_short = Column(Text)
+    description = Column(Text)
+    path_id = Column("path_id", ARRAY(Integer))
+    path_name = Column("path_name", ARRAY(Text))
+    depth = Column(Integer)
+    parent = relationship("HeirarchyNode", remote_side=[id])
+    client = relationship("Client")
+    version = relationship("HeirarchyVersion")
+    #children = relationship("Node",
+    #           backref=backref('parent', remote_side=[id]))
+    
+#class HeirarchyNodeDetail(Base):
+#    """This is a view already created in SQL that flattens the heirarchy"""
+#    __tablename__ = 'budget_node_detail'
+#    client_id = Column(Integer)
+#    client_name = Column(Text)
+#    id = Column(Integer, primary_key=True)
+#    name = Column(Text)
+#    ancestors = Column("ancestors", ARRAY(Integer))
+#    tree = Column("tree", ARRAY(Text))
+#    depth = Column(Integer)
+#    cycle = Column(Boolean)
 
 ############################
-#### Alternate Attempt for Budget Heirarchy
+#### 
 ###########################
-
-class BudgetLevel(Base):
-    __tablename__ = 'budget_level'
-    id = Column(Integer(), primary_key=True)
-    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
-    level = Column(Integer())
-    name = Column(String(255))
-
-class BudgetHeirarchy(Base):
-    __tablename__ = 'budget_heirarchy'
-    id = Column(Integer(), primary_key=True)
-    name = Column('name', String(255))
-    description = Column('description', String(255))
-    level = Column('level', Integer())
-    client_id = Column('client_id', Integer(), ForeignKey('client.id'))
-    parent_id = Column('parent_id', Integer(), ForeignKey('budget_heirarchy.id'))
-

@@ -1,5 +1,5 @@
 from flask import Flask, render_template, jsonify, send_file, url_for, redirect, Response, abort
-from mahercpa import app, mail, security, user_datastore
+from mahercpa import app, mail #, security, user_datastore
 from .modules import datasources
 from flask_sqlalchemy import SQLAlchemy
 from flask_security import Security, SQLAlchemySessionUserDatastore, UserMixin, RoleMixin, login_required, roles_required, roles_accepted, utils, core, current_user
@@ -16,7 +16,7 @@ from .modules.reports import *
 import pandas as pd
 import os
 from datetime import datetime
-###from flask_mail import Mail
+from flask_mail import Mail
 pd.set_option('display.max_colwidth', -1)
 
 
@@ -34,8 +34,8 @@ data.get_data()
 #    company = StringField('company', [Required()])
 
 init_db()
-###user_datastore = SQLAlchemySessionUserDatastore(db_session, User, Role)
-###security = Security(app, user_datastore)
+user_datastore = SQLAlchemySessionUserDatastore(db_session, User, Role)
+security = Security(app, user_datastore)
 #security = Security(app, user_datastore, register_form=ExtendedRegisterForm)
 
 @roles_required('admin')
@@ -129,10 +129,10 @@ def dash_redirect():
 @login_required
 def budget_redirect():
     user = user_datastore.get_user(current_user.email)
-    if user is not None:
+    if client is None:
         client = user.client[0].abbreviation
     
-    if user is None:
+    if not current_user.has_role(client):
         abort(403)
     
     re_url = "/client/{}/budget".format(client.lower())
@@ -151,18 +151,10 @@ def dash(client=None):
     if not current_user.has_role(client):
         abort(403)
     
-    departments = []
-    [departments.append({i.id : i.name}) 
-     for i in (db_session.query(HeirarchyNode)
-             .join(Client, HeirarchyVersion)
-             .filter(Client.abbreviation.ilike(client), 
-                     HeirarchyVersion.name == 'Budget', 
-                     HeirarchyNode.parent_id==None)
-             .order_by(HeirarchyNode.name))]
-    
     sidebar = {}
     sidebar['client'] = client
-    sidebar['departments'] = departments
+    sidebar['departments'] = ['Communications','Operations','Programs']
+    cdata = data.__dict__[client.lower()]
     
     ##Prep Dashboard
     #file = open('data/usage_comparison.csv','r')
@@ -237,15 +229,10 @@ def budget(client=None, dept_id=None):
                     
     return render_template('budget_expense.html', budget_line_table = blt, vendor_tbl = vendor_tbl, vendor_detail=vendor_detail.html(html_id="vendors",index =False), sb=sidebar, dept=dept)
 
-@app.route("/client/<client>/data/vendordetail/<dept_id>")
+@app.route("/data/<client>/vendor/<level>")
 @login_required
-def get_vendor_json(client, dept_id):
-    dept = (db_session.query(HeirarchyNode)
-                .join(Client, HeirarchyVersion)
-                .filter(Client.abbreviation.ilike(client), 
-                     HeirarchyVersion.name == 'Budget', 
-                     HeirarchyNode.id == dept_id)).first()
-
+def get_vendor_json(client, level):
+    bud_dept = 'Outreach and communications'
     ## SETUP CLIENT
     user = user_datastore.get_user(current_user.email)
     if client is None:
@@ -258,11 +245,11 @@ def get_vendor_json(client, dept_id):
     rba = rpt_budget_dept(cdata)
     #vendor_detail = rpt_present(rba.get_vendor_detail('Outreach and communications','wpONcall'))
     vendor_tbl = rpt_present(
-                    rba.get_vendor_detail(dept.name,'wpONcall')
+                    rba.get_vendor_detail('Outreach and communications','wpONcall')
                     #rba.get_vendor_monthly_spend('Outreach and communications')
                     ).df.to_json(orient='records')    #.datatables()
                     
-    return  jsonify(rba.budget_spend_detail(dept.name)) #Response(vendor_tbl)
+    return  jsonify(rba.budget_spend_detail(bud_dept)) #Response(vendor_tbl)
 
 
 @app.route("/budgeti/<int:dept>/<title>")
@@ -285,20 +272,15 @@ def budgeti(dept, title):
     return render_template('blank.html', content=d.to_html(escape=False,index =False))
     #return Response(tbl, mimetype='text/xml')
     
-@app.route("/client/<client>/data/budget/<dept_id>")
-def budget_dept(client, dept_id):
+@app.route("/client/<client>/data/budget/<dept>")
+def budget_dept(client, dept):
 
     #print('running budget...')
     rdata = rpt_budget_dept(data.__dict__[client.lower()])
-    dept = (db_session.query(HeirarchyNode)
-                .join(Client, HeirarchyVersion)
-                .filter(Client.abbreviation.ilike(client), 
-                     HeirarchyVersion.name == 'Budget', 
-                     HeirarchyNode.id == dept_id)).first()
-    
+    #print('got 1...')
     #rep = rpt_present(rdata.get_budget_actual('Outreach and communications'))
-    ba_cume = rpt_present(rdata.get_budget_actual_month_by_dept(dept.name))
-    spend_by_line = rpt_present(rdata.get_spend_by_line(dept.name))
+    ba_cume = rpt_present(rdata.get_budget_actual_month_by_dept('Outreach and communications'))
+    spend_by_line = rpt_present(rdata.get_spend_by_line('Outreach and communications'))
     
     #print(dept)
     #tbl = r.get_budget_actual(dept).to_html(float_format=lambda x: '{:,.0f}'.format(x), index=False)

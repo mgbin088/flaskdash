@@ -1,5 +1,6 @@
 #import modules.data_collection as dc
 import pandas as pd
+import numpy as np
 import math
 pd.set_option('display.float_format', lambda x: '%.1f' % x)
 
@@ -57,14 +58,14 @@ class rpt_budget_dept:
              .assign(Remaining = lambda df: (df['Budget'] - df['Spent']).clip(0,None))
              .assign(Over = lambda df: (df['Spent'] - df['Budget']).clip(0, None))
              .assign(spent_under = lambda df: df.loc[:, ['Spent', 'Budget']].min(axis=1))
-              ).reset_index()
+              ).reset_index().fillna(0)
         return rpt 
         
     def get_budget_actual_bullet_charts(self, budget_dept=''):
         d = self.get_budget_actual(budget_dept).copy()
         #target, performance, range1, range2, range3,
         ht = '<span class="spark-bullet">{}</span>'
-        max_rng = math.ceil(d.loc[:,'Budget'].max()/10000)*10000
+        max_rng = np.ceil(d.loc[:,'Budget'].max()/10000)*10000
         
         
         #conversion helper
@@ -184,8 +185,8 @@ class rpt_present:
         self.df = dataframe
         self.pallet = {'default':['rgba(60, 122, 146, .2)','rgba(60, 122, 146, .7)','rgba(212, 0, 0, .8)','rgba(212, 219, 206, 1)','rgba(78, 152, 143, 1)'],
                        'default-7':['rgba(60, 122, 146, .2)','rgba(60, 122, 146, .7)','rgba(212, 0, 0, .8)','rgba(212, 219, 206, 1)','rgba(78, 152, 143, 1)'],
-                       'categorical': ["rgba(51, 110, 147, 1)", "rgba(38, 168, 73, 1)", "rgba(99, 99, 97, 1)", "rgba(198, 85, 85, 1)", "rgba(198, 161, 85, 1)", "rgba(65, 198, 196, 1)"],
-                       'categorical-7': ["rgba(51, 110, 147, .7)", "rgba(38, 168, 73, .7)", "rgba(99, 99, 97, .7)", "rgba(198, 85, 85, .7)", "rgba(198, 161, 85, .7)", "rgba(65, 198, 196, .7)"],
+                       'categorical': ["rgba(51, 110, 147, 1)", "rgba(38, 168, 73, 1)", "rgba(99, 99, 97, 1)", "rgba(198, 85, 85, 1)", "rgba(198, 161, 85, 1)", "rgba(65, 198, 196, 1)","rgba(51, 110, 147, .7)", "rgba(38, 168, 73, .7)", "rgba(99, 99, 97, .7)", "rgba(198, 85, 85, .7)", "rgba(198, 161, 85, .7)", "rgba(65, 198, 196, .7)"],
+                       'categorical-7': ["rgba(51, 110, 147, .7)", "rgba(38, 168, 73, .7)", "rgba(99, 99, 97, .7)", "rgba(198, 85, 85, .7)", "rgba(198, 161, 85, .7)", "rgba(65, 198, 196, .7),rgba(51, 110, 147, .5)", "rgba(38, 168, 73, .5)", "rgba(99, 99, 97, .5)", "rgba(198, 85, 85, .5)", "rgba(198, 161, 85, .5)", "rgba(65, 198, 196, .5)"],
                        'categorical-5': ["rgba(51, 110, 147, .5)", "rgba(38, 168, 73, .5)", "rgba(99, 99, 97, .5)", "rgba(198, 85, 85, .5)", "rgba(198, 161, 85, .5)", "rgba(65, 198, 196, .5)"],
                        'categorical-3': ["rgba(51, 110, 147, .3)", "rgba(38, 168, 73, .3)", "rgba(99, 99, 97, .3)", "rgba(198, 85, 85, .3)", "rgba(198, 161, 85, .3)", "rgba(65, 198, 196, .3)"]
                       }

@@ -1,13 +1,12 @@
 {% import 'chart_assist.html' as cht %}
-{% import 'dashboard_sidebar.html' as sidebar %}
 {% extends "layout_dashboard.html" %} {% block content %}
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
     <!-- Content Header (Page header) -->
     <section class="content-header">
       <h1>
-         {{dept.name}}
-        <small>Budget Tracker</small>
+        Department Budget
+        <small>Optional description</small>
       </h1>
       <ol class="breadcrumb">
         <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
@@ -187,9 +186,7 @@
 //$(function() {
 //function draw_chartjs() {
 console.log('requesty xhr');
-    var budget_url = "/client/{{sb.client}}/data/budget/" + "{{dept.id}}";
-    console.log(budget_url);
-    var xhr = $.getJSON( budget_url, function( datas ) {
+    var xhr = $.getJSON( "/budget/Outreach%20and%20communications", function( datas ) {
       
       $(document).ready(function() {
         var canvas_norm = document.getElementById("budget_norm").getContext('2d');
@@ -331,9 +328,8 @@ $(function() {
 
 
 $(document).ready(function() {
-    var budget_url = "/client/{{sb.client}}/data/vendordetail/" + "{{dept.id}}";
     vendor_dt = $('#vendors').DataTable( {
-        "ajax": {url: budget_url, dataSrc: ''},
+        "ajax": {url: "/data/scp/vendor/detail", dataSrc: ''},
         "autoWidth": false,
         "columns": [
             {
@@ -355,7 +351,6 @@ $(document).ready(function() {
             { "data": "Dec'17", "title":"Mar'17"}
             ]
     } );
-    $( ".dataframe tr").filter(":last").css({ "border-top": "2px", fontWeight: "bolder" });
 } );
 
 /* Formatting function for row details - modify as you need */

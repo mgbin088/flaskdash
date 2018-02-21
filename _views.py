@@ -25,10 +25,13 @@ pd.set_option('display.max_colwidth', -1)
 #app.config.from_envvar('FLASKDASH_SETTINGS')
 
 #mail = Mail(app)
-
-#Cache Client Data
 data = data_collection(app.config['DATA_PATH'])
-data.get_data()
+#Cache Client Data
+@app.before_first_request
+def run_first():
+    
+    data.get_data()
+    return 'ok'
 
 #class ExtendedRegisterForm(RegisterForm):
 #    company = StringField('company', [Required()])
@@ -389,7 +392,22 @@ def add_role_to_user(user, role):
     db_session.commit()
     return Response(role)
 
+@roles_required('admin')
+@app.route('/client/<client>/makebudget')
+def makebudget(client):
     
+    if client is None:
+        client = current_user.client[0].abbreviation
+    
+    if not current_user.has_role(client):
+        abort(403)
+    
+    c = '{}:{}'.format(client, current_user.email)
+    
+    bv = BudgetVersion.query.filter_by(client_id=current_user.client[0].id)
+    bvl = [b.name for b in bv]
+    
+    return render_template('makebudget.html', content=bvl[0])
 
 
 @user_registered.connect_via(app)

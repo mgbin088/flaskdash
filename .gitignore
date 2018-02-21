@@ -2,6 +2,7 @@
 static/bower_components/
 static/dist/
 static/iCheck/
+config.py
 *.pyc
 *.csv
 *.json

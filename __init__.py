@@ -18,12 +18,8 @@ def create_app(config_name=None):
     else:
         app.config.from_pyfile(config_name)
     
-    #app.config['DEBUG'] = True
-    #'SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
-    #app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    #app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://mahercpa_app:h2%7N%Jzn&&f@mahercpa.cal45ovofuod.us-west-2.rds.amazonaws.com:5432/dev'
-    
     from mahercpa.modules.models import db, Budget, BudgetVersion, Client, User, Role, user_datastore
+    
     db.init_app(app)
     mail.init_app(app)
     #user_datastore = SQLAlchemySessionUserDatastore(db, User, Role)
@@ -35,11 +31,13 @@ def create_app(config_name=None):
         #print("print-user_registered_sighandler:", user.email)
         user_domain = str(user.email).split('@')[1]
         #print(user_domain)
-        user_client = db_session.query(Client).filter_by(domain=user_domain).first()
+        user_client = Client.query.filter_by(domain=user_domain).first()
+        client_role = Role.query.filter_by(name.ilike(user_client.abbreviation)).first()
     
         if user_client is not None:
-            print(user_client.name)
-            user_client.users.append(user)
+            #print(user_client.name)
+            user.client.append(user_client)
+            user.roles.append(client_role)
             db_session.commit()
         
 

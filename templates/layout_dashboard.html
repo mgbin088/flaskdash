@@ -19,15 +19,18 @@ scratch. This page gets rid of all links and provides the needed markup only.
   <link rel="stylesheet" href="{{ url_for('static', filename='bower_components/jvectormap/jquery-jvectormap.css') }}">
   <!-- Theme style -->
   <link rel="stylesheet" href="{{ url_for('static', filename='dist/css/AdminLTE.min.css') }}">
-<!-- Dygraph style -->
-  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/dygraph/2.0.0/dygraph.min.css">
+
 
   <link rel="stylesheet" href="https://cdn.datatables.net/1.10.16/css/jquery.dataTables.min.css">
-  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
+  <!--link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/morris.js/0.5.1/morris.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.0/chartist.min.css">
-  <link rel="stylesheet" href="{{ url_for('static', filename='dist/css/chartist-plugin-tooltip.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='dist/css/chartist-plugin-tooltip.css') }}"-->
   <!-- ChartJS -->
+<!-- jQuery 3 -->
+<script src="{{ url_for('static', filename='bower_components/jquery/dist/jquery.min.js') }}"></script>
+<script src="{{ url_for('static', filename='dist/js/moment.min.js') }}"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+
   
   <style type="text/css">
     .dygraph-legend {
@@ -67,8 +70,6 @@ scratch. This page gets rid of all links and provides the needed markup only.
         page. However, you can choose any other skin. Make sure you
         apply the skin class to the body tag so the changes take effect. -->
   <link rel="stylesheet" href="{{ url_for('static', filename='dist/css/skins/skin-black.min.css') }}">
-<!-- jQuery 3 -->
-<script src="{{ url_for('static', filename='bower_components/jquery/dist/jquery.min.js') }}"></script>
   <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
   <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
   <!--[if lt IE 9]>
@@ -300,7 +301,7 @@ desired effect
       <!-- sidebar menu: : style can be found in sidebar.less -->
       <ul class="sidebar-menu" data-widget="tree">
         <li class="header">MAIN NAVIGATION</li>
-        <li class="active treeview menu-open">
+        <li class="treeview menu-open">
           <a href="#">
             <i class="fa fa-dashboard"></i> <span>Dashboard</span>
             <span class="pull-right-container">
@@ -327,7 +328,7 @@ desired effect
             <li><a href=""><i class="fa fa-circle-o"></i> Audit</a></li>
           </ul>
         </li>
-        <li class="treeview">
+        <li class="active treeview">
           <a href="#">
             <i class="fa fa-pie-chart"></i>
             <span>Budgets</span>

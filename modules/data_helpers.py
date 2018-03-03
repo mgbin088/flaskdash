@@ -16,10 +16,11 @@ def get_fyear_list(start_month, includes_date=None):
     
     start_date = fy.rollback(includes_date)
     r = pd.date_range(start_date, periods=12, freq='MS')
-    return r
+    df = pd.DataFrame({'date':r.strftime('%Y-%m-%d'),'period_name':r.strftime('%b\'%y'),'yyyymm':r.strftime('%Y-%m')})
+    return df
     
 
-def fyear_list(include_date, client=None, user=None):
+def fyear_list(include_date=None, client=None, user=None):
     """help to call get_fyear_list from context"""
     if client:
         start_month = client.fyear_start_mo

@@ -69,7 +69,7 @@ def budget_redirect():
     if user is None:
         abort(403)
     
-    bud_id = {'scp':115,'mce':35}
+    bud_id = {'scp':115,'mce':248}
     
     re_url = "/client/{}/budget/{}".format(client.lower(),bud_id[client.lower()])
     return redirect((re_url))

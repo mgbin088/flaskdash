@@ -20,6 +20,10 @@ CREATE TABLE calendar
   quarter_actual           INT NOT NULL,
   quarter_name             VARCHAR(9) NOT NULL,
   year_actual              INT NOT NULL,
+  fiscal_year_1            INT NOT NULL,
+  fiscal_year_4            INT NOT NULL,
+  fiscal_year_7            INT NOT NULL,
+  fiscal_year_10            INT NOT NULL,
   first_day_of_week        DATE NOT NULL,
   last_day_of_week         DATE NOT NULL,
   first_day_of_month       DATE NOT NULL,
@@ -64,6 +68,12 @@ SELECT TO_CHAR(datum,'yyyymmdd')::INT AS date_dim_id,
          WHEN EXTRACT(quarter FROM datum) = 4 THEN 'Fourth'
        END AS quarter_name,
        EXTRACT(isoyear FROM datum) AS year_actual,
+
+       EXTRACT(isoyear FROM datum) as fiscal_year_1,
+       CASE WHEN EXTRACT(MONTH FROM datum) < 4 THEN EXTRACT(isoyear FROM datum) ELSE EXTRACT(isoyear FROM datum) + 1 END as fiscal_year_4,
+       CASE WHEN EXTRACT(MONTH FROM datum) < 7 THEN EXTRACT(isoyear FROM datum) ELSE EXTRACT(isoyear FROM datum) + 1 END as fiscal_year_7,
+       CASE WHEN EXTRACT(MONTH FROM datum) < 10 THEN EXTRACT(isoyear FROM datum) ELSE EXTRACT(isoyear FROM datum) + 1 END as fiscal_year_10,
+
        datum +(1 -EXTRACT(isodow FROM datum))::INT AS first_day_of_week,
        datum +(7 -EXTRACT(isodow FROM datum))::INT AS last_day_of_week,
        datum +(1 -EXTRACT(DAY FROM datum))::INT AS first_day_of_month,

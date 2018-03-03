@@ -63,6 +63,7 @@ class Client (db.Model):
     name = db.Column( db.String(100), unique=True)
     domain = db.Column( db.String(100), unique=True)
     abbreviation = db.Column( db.String(10), unique=True)
+    fyear_start_mo = db.Column( db.Integer())
     users =  db.relationship("User", secondary='clients_users', back_populates="client")
 
 ######################################################################
